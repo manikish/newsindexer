@@ -4,6 +4,7 @@
 package edu.buffalo.cse.irf14.analysis;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author nikhillo
@@ -13,6 +14,7 @@ import java.util.Iterator;
  */
 public class TokenStream implements Iterator<Token>{
 	
+	private List<String> tokens;
 	/**
 	 * Method that checks if there is any Token left in the stream
 	 * with regards to the current pointer.
@@ -70,6 +72,7 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	public void append(TokenStream stream) {
 		//TODO : YOU MUST IMPLEMENT THIS
+		
 	}
 	
 }
