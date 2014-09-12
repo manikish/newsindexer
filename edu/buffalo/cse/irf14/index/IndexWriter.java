@@ -3,6 +3,7 @@
  */
 package edu.buffalo.cse.irf14.index;
 
+import edu.buffalo.cse.irf14.analysis.Analyzer;
 import edu.buffalo.cse.irf14.analysis.AnalyzerFactory;
 import edu.buffalo.cse.irf14.analysis.TokenStream;
 import edu.buffalo.cse.irf14.analysis.Tokenizer;
@@ -42,7 +43,7 @@ public class IndexWriter {
 			// TODO Auto-generated catch block
 			throw new IndexerException();
 		}
-		myFactory.getAnalyzerForField(FieldNames.CONTENT, myStream);
+		Analyzer myAnalyzer = myFactory.getAnalyzerForField(FieldNames.CONTENT, myStream);
 	}
 	
 	/**

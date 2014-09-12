@@ -49,9 +49,9 @@ public class AnalyzerFactory {
 		Analyzer myAnalyzer = null;
 		switch(name) {
 		case CONTENT: {
-				//create analyzer for content
+				myAnalyzer = new ContentFilter(stream);
 					}
 		}
-		return null;
+		return myAnalyzer;
 	}
 }
