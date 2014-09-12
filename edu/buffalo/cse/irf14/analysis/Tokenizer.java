@@ -42,7 +42,7 @@ public class Tokenizer {
 	 * @throws TokenizerException : In case any exception occurs during
 	 * tokenization
 	 */
-	public TokenStream consume(String str) throws TokenizerException {
+	public TokenStream consume(String str) throws TokenizerException { //implement try catch block for casting exception
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
 		String[]  tokenArray = str.split(delim);
 		tokenStream = new TokenStream();
@@ -55,6 +55,6 @@ public class Tokenizer {
 				}
 			}
 		}
-		return null;
+		return tokenStream;
 	}
 }
