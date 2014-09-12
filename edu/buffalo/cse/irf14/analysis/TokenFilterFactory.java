@@ -10,6 +10,10 @@ package edu.buffalo.cse.irf14.analysis;
  *
  */
 public class TokenFilterFactory {
+	
+	private static TokenFilterFactory myClass;
+	
+	private TokenFilterFactory() {}
 	/**
 	 * Static method to return an instance of the factory class.
 	 * Usually factory classes are defined as singletons, i.e. 
@@ -23,7 +27,10 @@ public class TokenFilterFactory {
 	 */
 	public static TokenFilterFactory getInstance() {
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
-		return null;
+		if(myClass==null) {
+			myClass = new TokenFilterFactory();
+		}
+		return myClass;
 	}
 	
 	/**

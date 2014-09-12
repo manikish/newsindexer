@@ -33,9 +33,7 @@ public class Runner {
 		String ipDir = args[0];
 		String indexDir = args[1];
 		//more? idk!
-				
 		
-		System.out.println(ipDir);
 		File ipDirectory = new File(ipDir);
 		String[] catDirectories = ipDirectory.list();
 		

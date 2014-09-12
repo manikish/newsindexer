@@ -3,6 +3,7 @@
  */
 package edu.buffalo.cse.irf14.analysis;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,7 +15,16 @@ import java.util.List;
  */
 public class TokenStream implements Iterator<Token>{
 	
-	private List<String> tokens;
+	private List<Token> tokens;
+	
+	public void add(Token token) {
+		if(tokens == null) {
+			tokens = new ArrayList<Token>();
+		}
+		if(!token.getTermText().isEmpty()) {
+			tokens.add(token);
+		}
+	}
 	/**
 	 * Method that checks if there is any Token left in the stream
 	 * with regards to the current pointer.
