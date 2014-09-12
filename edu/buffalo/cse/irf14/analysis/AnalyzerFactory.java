@@ -49,7 +49,7 @@ public class AnalyzerFactory {
 		Analyzer myAnalyzer = null;
 		switch(name) {
 		case CONTENT: {
-			
+				//create analyzer for content
 					}
 		}
 		return null;

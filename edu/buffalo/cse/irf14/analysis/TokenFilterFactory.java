@@ -43,6 +43,13 @@ public class TokenFilterFactory {
 	 */
 	public TokenFilter getFilterByType(TokenFilterType type, TokenStream stream) {
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
-		return null;
+		TokenFilter myFilter = null;
+		switch(type) {
+		case STOPWORD: {
+				//create new TokenFilter for stopword elimination.
+				//myFilter = new StopwordTokenFilter();
+			}
+		}
+		return myFilter;
 	}
 }
