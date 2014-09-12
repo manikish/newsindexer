@@ -49,7 +49,9 @@ public class Tokenizer {
 		if(tokenArray != null) {
 			for(String temp: tokenArray) {
 				if(!temp.isEmpty()) {
-					
+					Token myToken = new Token();
+					myToken.setTermText(temp);
+					tokenStream.add(myToken);
 				}
 			}
 		}
