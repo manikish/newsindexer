@@ -29,7 +29,7 @@ public class TokenFilterFactory {
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
 		if(myClass==null) {
 			myClass = new TokenFilterFactory();
-		}
+		} 
 		return myClass;
 	}
 	

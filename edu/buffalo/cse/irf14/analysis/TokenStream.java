@@ -3,9 +3,7 @@
  */
 package edu.buffalo.cse.irf14.analysis;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author nikhillo
@@ -15,16 +13,6 @@ import java.util.List;
  */
 public class TokenStream implements Iterator<Token>{
 	
-	private List<Token> tokens;
-	
-	public void add(Token token) {
-		if(tokens == null) {
-			tokens = new ArrayList<Token>();
-		}
-		if(!token.getTermText().isEmpty()) {
-			tokens.add(token);
-		}
-	}
 	/**
 	 * Method that checks if there is any Token left in the stream
 	 * with regards to the current pointer.
@@ -82,7 +70,19 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	public void append(TokenStream stream) {
 		//TODO : YOU MUST IMPLEMENT THIS
-		
+	}
+	
+	/**
+	 * Method to get the current Token from the stream without iteration.
+	 * The only difference between this method and {@link TokenStream#next()} is that
+	 * the latter moves the stream forward, this one does not.
+	 * Calling this method multiple times would not alter the return value of {@link TokenStream#hasNext()}
+	 * @return The current {@link Token} if one exists, null if end of stream
+	 * has been reached or the current Token was removed
+	 */
+	public Token getCurrent() {
+		//TODO: YOU MUST IMPLEMENT THIS
+		return null;
 	}
 	
 }
