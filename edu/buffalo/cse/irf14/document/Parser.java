@@ -69,6 +69,8 @@ public class Parser {
 				if((myLine = myScanner.nextLine()).trim().length()!=0) {
 					 if (!isTitlePopulated) {
 							title = title.append(myLine);
+							
+							
 					 }
 					 else
 					 {
