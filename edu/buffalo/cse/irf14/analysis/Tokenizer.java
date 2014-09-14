@@ -51,7 +51,6 @@ public class Tokenizer {
 				if(!temp.isEmpty()) {
 					Token myToken = new Token();
 					myToken.setTermText(temp);
-					tokenStream.add(myToken);
 				}
 			}
 		}

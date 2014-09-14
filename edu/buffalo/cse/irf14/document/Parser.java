@@ -28,6 +28,8 @@ public class Parser {
 	//private variable which checks if content has been started and hence all the content henceforth needs to be appended
 	private static Boolean isContentStarted = Boolean.FALSE;
 	private static StringBuffer myContent = new StringBuffer();
+	private static StringBuffer title = new StringBuffer();
+
 	private static Boolean isFirstLineOfText = Boolean.TRUE;
 	private static Boolean AUTHOR_TAG_SET = Boolean.FALSE;
 	private static Boolean isPlaceAndDateGiven = Boolean.FALSE;
@@ -62,11 +64,25 @@ public class Parser {
 			 //read each line and populate Title and other fields
 			Scanner myScanner = new Scanner(new File(filename));
 			String myLine = new String();
+			boolean isTitlePopulated = false;
 			while(myScanner.hasNextLine()) {
 				if((myLine = myScanner.nextLine()).trim().length()!=0) {
-					populateFields(myDocument, myLine);
+					 if (!isTitlePopulated) {
+							title = title.append(myLine);
+							
+							
+					 }
+					 else
+					 {
+							populateFields(myDocument, myLine);
+					 }
+				}
+				else if (title.length() != 0)
+				{
+					isTitlePopulated = true;
 				}
 			}
+			myDocument.setField(FieldNames.TITLE, title.toString());
 			myScanner.close();
 			//set the Content to the Document obj
 			myDocument.setField(FieldNames.CONTENT, myContent.toString());
@@ -127,12 +143,8 @@ public class Parser {
 	private static void populateFields(Document aDocument, String aText) {
 		String myText = new String();
 		String[] myFields = {""};
-		if(isFirstLineOfText) {
-			//set Title in Document obj
-			aDocument.setField(FieldNames.TITLE, aText.trim().toUpperCase());
-			isFirstLineOfText = Boolean.FALSE;
-		}
-		else if(!isContentStarted){
+		
+		if(!isContentStarted){
 			if(!AUTHOR_TAG_SET) {
 				//populating Author and AuthorORG tags- step 1
 				
