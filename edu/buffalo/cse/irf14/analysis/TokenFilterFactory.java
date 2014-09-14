@@ -47,7 +47,7 @@ public class TokenFilterFactory {
 		switch(type) {
 		case STOPWORD: {
 				//create new TokenFilter for stopword elimination.
-				//myFilter = new StopwordTokenFilter();
+				myFilter = new StopwordTokenFilter(stream);
 			}
 		}
 		return myFilter;

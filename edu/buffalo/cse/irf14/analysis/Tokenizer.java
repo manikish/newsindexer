@@ -5,12 +5,15 @@ package edu.buffalo.cse.irf14.analysis;
 
 import java.util.Iterator;
 
+import edu.buffalo.cse.irf14.document.Parser;
+
 /**
  * @author nikhillo
  * Class that converts a given string into a {@link TokenStream} instance
  */
 public class Tokenizer {
-	private String delim;
+	
+	private String delim = Parser.SPACE_SEPERATOR;
 	private TokenStream tokenStream;
 	/**
 	 * Default constructor. Assumes tokens are whitespace delimited
