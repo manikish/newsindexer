@@ -39,11 +39,14 @@ public class IndexWriter {
 		TokenStream myStream = null;
 		try {
 			myStream = myTokenizer.consume(d.getField(FieldNames.CONTENT)[0]);// modify this hardcoded [0]
+			Analyzer myAnalyzer = myFactory.getAnalyzerForField(FieldNames.CONTENT, myStream);
+			
+			
+			
 		} catch (TokenizerException e) {
 			// TODO Auto-generated catch block
 			throw new IndexerException();
 		}
-		Analyzer myAnalyzer = myFactory.getAnalyzerForField(FieldNames.CONTENT, myStream);
 	}
 	
 	/**
