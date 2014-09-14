@@ -115,6 +115,7 @@ public class Parser {
 		isFirstLineOfText = Boolean.TRUE;
 		AUTHOR_TAG_SET = Boolean.FALSE;
 		isPlaceAndDateGiven = Boolean.FALSE;
+		title = new StringBuffer();
 	}
 
 	//redundant method- remove this after use
