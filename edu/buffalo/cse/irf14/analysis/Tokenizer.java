@@ -3,7 +3,8 @@
  */
 package edu.buffalo.cse.irf14.analysis;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+
 
 /**
  * @author nikhillo
@@ -45,15 +46,17 @@ public class Tokenizer {
 	public TokenStream consume(String str) throws TokenizerException { //implement try catch block for casting exception
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
 		String[]  tokenArray = str.split(delim);
-		tokenStream = new TokenStream();
+		ArrayList<Token> tokensArrayList = new ArrayList<>();
 		if(tokenArray != null) {
 			for(String temp: tokenArray) {
 				if(!temp.isEmpty()) {
 					Token myToken = new Token();
 					myToken.setTermText(temp);
+					tokensArrayList.add(myToken);
 				}
 			}
 		}
+		tokenStream = new TokenStream(tokensArrayList);
 		return tokenStream;
 	}
 }
