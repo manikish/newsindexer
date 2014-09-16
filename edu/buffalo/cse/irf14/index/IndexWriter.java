@@ -3,7 +3,6 @@
  */
 package edu.buffalo.cse.irf14.index;
 
-import edu.buffalo.cse.irf14.analysis.Analyzer;
 import edu.buffalo.cse.irf14.analysis.AnalyzerFactory;
 import edu.buffalo.cse.irf14.analysis.TokenFilter;
 import edu.buffalo.cse.irf14.analysis.TokenStream;
@@ -17,12 +16,15 @@ import edu.buffalo.cse.irf14.document.FieldNames;
  * Class responsible for writing indexes to disk
  */
 public class IndexWriter {
+	
+	public static String indexDir;
 	/**
 	 * Default constructor
 	 * @param indexDir : The root directory to be sued for indexing
 	 */
 	public IndexWriter(String indexDir) {
 		//TODO : YOU MUST IMPLEMENT THIS
+		IndexWriter.indexDir = indexDir;
 	}
 	
 	/**
@@ -45,8 +47,7 @@ public class IndexWriter {
 				myFilter.perform();
 				myFilter = myFilter.getNextFilter();
 			}
-			
-			
+			IndexerFactory.getInstance().getClassForIndex(IndexType.TERM).write(myStream, d.getField(FieldNames.FILEID)[0]);//hardcoded 0
 		} catch (TokenizerException e) {
 			// TODO Auto-generated catch block
 			throw new IndexerException();
@@ -61,4 +62,9 @@ public class IndexWriter {
 	public void close() throws IndexerException {
 		//TODO
 	}
+
+	public String getIndexDir() {
+		return indexDir;
+	}
+	
 }

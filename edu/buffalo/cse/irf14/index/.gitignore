@@ -2,3 +2,9 @@
 /IndexType.class
 /IndexWriter.class
 /IndexerException.class
+/TermIndexer.class
+/TermIndexWriter.class
+/TermIndex.class
+/IndexerFactory.class
+/Writer.class
+/TermBean.class

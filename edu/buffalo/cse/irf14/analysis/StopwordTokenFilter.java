@@ -1,5 +1,7 @@
 package edu.buffalo.cse.irf14.analysis;
 
+import com.sun.org.glassfish.external.statistics.annotations.Reset;
+
 public class StopwordTokenFilter extends TokenFilter {
 	
 	public static final String STOPWORD_LIST = "a|above|about|after|again|against|all|am|an|and|any|are|aren't|aint|ain't|as|at|be|because|been|before|being|below|"
@@ -30,6 +32,7 @@ public class StopwordTokenFilter extends TokenFilter {
 	@Override
 	//This method removes the stopwords from the token stream
 	public void perform() {
+		myStream.reset();
 		try {
 			if(increment()) {
 				Token myToken = myStream.next();
