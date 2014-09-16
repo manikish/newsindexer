@@ -5,6 +5,7 @@ package edu.buffalo.cse.irf14.index;
 
 import edu.buffalo.cse.irf14.analysis.Analyzer;
 import edu.buffalo.cse.irf14.analysis.AnalyzerFactory;
+import edu.buffalo.cse.irf14.analysis.TokenFilter;
 import edu.buffalo.cse.irf14.analysis.TokenStream;
 import edu.buffalo.cse.irf14.analysis.Tokenizer;
 import edu.buffalo.cse.irf14.analysis.TokenizerException;
@@ -39,8 +40,11 @@ public class IndexWriter {
 		TokenStream myStream = null;
 		try {
 			myStream = myTokenizer.consume(d.getField(FieldNames.CONTENT)[0]);// modify this hardcoded [0]
-			Analyzer myAnalyzer = myFactory.getAnalyzerForField(FieldNames.CONTENT, myStream);
-			
+			TokenFilter myFilter = (TokenFilter)myFactory.getAnalyzerForField(FieldNames.CONTENT, myStream);
+			while(myFilter!=null) {
+				myFilter.perform();
+				myFilter = myFilter.getNextFilter();
+			}
 			
 			
 		} catch (TokenizerException e) {

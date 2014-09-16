@@ -1,6 +1,7 @@
 package edu.buffalo.cse.irf14.analysis;
 
 public class ContentFilter extends TokenFilter {
+	private TokenFilter nextFilter;
 
 	public ContentFilter(TokenStream stream) {
 		super(stream);

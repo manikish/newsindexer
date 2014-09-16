@@ -9,3 +9,4 @@
 /TokenizerException.class
 /ContentFilter.class
 /StopwordTokenFilter.class
+/StemmerTokenFilter.class
