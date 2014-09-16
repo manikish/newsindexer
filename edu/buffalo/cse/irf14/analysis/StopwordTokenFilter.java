@@ -28,15 +28,6 @@ public class StopwordTokenFilter extends TokenFilter {
 	}
 
 	@Override
-	public boolean increment() throws TokenizerException {
-		// TODO Auto-generated method stub
-		if(myStream!=null && myStream.hasNext()) {
-			return true;
-		}
-		return false;
-	}
-
-	@Override
 	//This method removes the stopwords from the token stream
 	public void perform() {
 		try {
