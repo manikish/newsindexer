@@ -6,6 +6,7 @@ package edu.buffalo.cse.irf14.analysis;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 /**
  * @author nikhillo
@@ -107,6 +108,23 @@ public class TokenStream implements Iterator<Token>{
 			return token;
 		}
 		return null;
+	}
+	
+	public Token previous()
+	{
+		try
+		{
+			return listIterator.previous();
+		}
+		catch(NoSuchElementException e)
+		{
+			throw e;
+		}
+	}
+	
+	public void replace(int tokenIndex, Token token)
+	{
+		tokenStream.set(tokenIndex, token);
 	}
 	
 }
