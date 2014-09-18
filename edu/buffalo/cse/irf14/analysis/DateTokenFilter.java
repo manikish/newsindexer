@@ -1,11 +1,15 @@
 package edu.buffalo.cse.irf14.analysis;
 
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+
 
 public class DateTokenFilter extends TokenFilter {
 	private TokenFilter nextFilter;
 	private TokenStream myStream;
-	private static final String DATE_PATTERNS = "January|February|March|April|May|June|July|August|September|October|November|December" 
-			 +"BC|AD|UTC|AM|PM|";
+	private static final String MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December" 
+			 ;
+	private static final String OTHER_PATTERNS = "BC|AD|UTC|AM|PM|";
 	
 	@Override
 	public void setNextFilter(TokenFilter nextFilter) {
@@ -32,7 +36,7 @@ public class DateTokenFilter extends TokenFilter {
 		try {
 			if(increment()) {
 				Token myToken = myStream.next();
-				if (DATE_PATTERNS.contains(myToken.getTermText())) {
+				if (MONTHS.contains(myToken.getTermText())) {
 					Character c = myToken.getTermBuffer()[0];
 					String month,year,time;
 										
@@ -63,10 +67,6 @@ public class DateTokenFilter extends TokenFilter {
 						else if(res>0)
 						{
 							month = "08";
-						}
-						else
-						{
-							
 						}
 					}
 						break;
@@ -100,15 +100,15 @@ public class DateTokenFilter extends TokenFilter {
 							month = "05";
 						}
 					}
-					default:
+					default: 
 						month = "-1";
 						break;
 					}
 					Token nextToken = myStream.next();
-//					if(nextToken.getTermText().is)
-					{
-						
-					}
+//                    if(nextToken.getTermText())
+                    {
+                    	
+                    }
 				}
 				
 			}
@@ -117,5 +117,12 @@ public class DateTokenFilter extends TokenFilter {
 			e.printStackTrace();
 		}
 	}
-
+	
+	public static boolean isNumeric(String str)
+	{
+	  NumberFormat formatter = NumberFormat.getInstance();
+	  ParsePosition pos = new ParsePosition(0);
+	  formatter.parse(str, pos);
+	  return str.length() == pos.getIndex();
+	}
 }
