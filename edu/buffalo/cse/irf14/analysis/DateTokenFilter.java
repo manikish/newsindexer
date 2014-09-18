@@ -29,6 +29,7 @@ public class DateTokenFilter extends TokenFilter {
 		// TODO Auto-generated constructor stub
 		super(stream);
 		myStream = stream;
+		perform();
 	}
 		
 	@Override
@@ -36,7 +37,7 @@ public class DateTokenFilter extends TokenFilter {
 		// TODO Auto-generated method stub
 		myStream.reset();
 		try {
-			if(increment()) {
+			while(increment()) {
 				Token myToken = myStream.next();
 				String myTokenText = myToken.getTermText();
 //code for the formats- 10 january 1990 && December 7, 1941 && April 11  
@@ -91,6 +92,7 @@ public class DateTokenFilter extends TokenFilter {
 							month = "06";
 						}
 					}
+					break;
 					case 'M':
 					{
 						Character third = myToken.getTermBuffer()[2];
@@ -104,6 +106,7 @@ public class DateTokenFilter extends TokenFilter {
 							month = "05";
 						}
 					}
+					break;
 					default: 
 						month = "-1";
 						break;
@@ -125,16 +128,16 @@ public class DateTokenFilter extends TokenFilter {
                     	if(expectedDay == null)
                     	{
                     		year = "1900";
-                    		day  = number.toString(); 
+                    		day  = getFormattedDay(number); 
                     		myStream.next();
                     		myStream.remove();
-                    		myStream.next();
+                    		myStream.next();  
                     		myStream.remove();
                        	}
                     	else
                     	{
                     		year = getFormattedYear(number);
-                    		day  = expectedDay.toString();
+                    		day  = getFormattedDay(expectedDay);
                     		myStream.remove();
                         	myStream.next();
                         	myStream.remove();
@@ -145,7 +148,7 @@ public class DateTokenFilter extends TokenFilter {
                     }
                     else
                     {
-                    	day = number.toString();
+                    	day = getFormattedDay(number);
                     	Token predictedYearToken = myStream.next();
                         pos.setIndex(0);
                     	Number expectedYear = formatter.parse(predictedYearToken.getTermText(),pos);
@@ -178,28 +181,33 @@ public class DateTokenFilter extends TokenFilter {
 				{
 					//code for 2011-14 format
 					String[] strings = myTokenText.split("-");
-					try
+					if(isNumeric(strings[0])&& strings.length == 2)
 					{
-						int yearFrom = Integer.parseInt(strings[0]);
-						int yearTo   = Integer.parseInt(strings[1]);
+						try
+						{
+							int yearFrom = Integer.parseInt(strings[0]);
+							int yearTo   = Integer.parseInt(strings[1]);
+							
+							int prefixYearTo = yearFrom/100;
+							yearTo = prefixYearTo*100+yearTo;
+							 
+							String dateString = yearFrom+"0101-"+yearTo+"0101";
+							myStream.remove();
+							Token insertToken = new Token();
+		                    insertToken.setTermText(dateString);
+							myStream.insert(myStream.getNextIndex(), insertToken);
+						}
+						catch (NumberFormatException e)
+						{
+							throw e;
+						}
 						
-						int prefixYearTo = yearFrom/100;
-						yearTo = prefixYearTo*100+yearTo;
-						 
-						String dateString = yearFrom+"0101-"+yearTo+"0101";
-						myStream.remove();
-						Token insertToken = new Token();
-	                    insertToken.setTermText(dateString);
-						myStream.insert(myStream.getNextIndex(), insertToken);
 					}
-					catch (NumberFormatException e)
-					{
-						throw e;
-					}
-					
+				
 				}
 				
 			}
+			 
 		} catch (TokenizerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -228,6 +236,21 @@ public class DateTokenFilter extends TokenFilter {
         }
     	
 		return year;
+	}
+	
+	public static String getFormattedDay(Number dayInNumber)
+	{
+		String day;
+		int dayInt = dayInNumber.intValue();
+		if(dayInt<=9)
+		{
+			day = "0"+dayInNumber.toString();
+		}
+		else
+		{
+			day = dayInNumber.toString();
+		}
+		return day;
 	}
 	
 	public static boolean isNumeric(String str)
