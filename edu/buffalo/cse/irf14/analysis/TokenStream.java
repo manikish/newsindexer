@@ -127,4 +127,12 @@ public class TokenStream implements Iterator<Token>{
 		tokenStream.set(tokenIndex, token);
 	}
 	
+	public void insert(int index,Token token) {
+		tokenStream.add(index, token);
+	}
+	
+	public int getNextIndex()
+	{
+		return listIterator.nextIndex();
+	}
 }

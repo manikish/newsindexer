@@ -3,6 +3,8 @@ package edu.buffalo.cse.irf14.analysis;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 
+import com.sun.xml.internal.fastinfoset.util.StringArray;
+
 
 public class DateTokenFilter extends TokenFilter {
 	private TokenFilter nextFilter;
@@ -36,10 +38,12 @@ public class DateTokenFilter extends TokenFilter {
 		try {
 			if(increment()) {
 				Token myToken = myStream.next();
-				if (MONTHS.contains(myToken.getTermText())) {
+				String myTokenText = myToken.getTermText();
+//code for the formats- 10 january 1990 && December 7, 1941 && April 11  
+				if (MONTHS.contains(myTokenText)) {
 					Character c = myToken.getTermBuffer()[0];
-					String month,year,time;
-										
+					String month = null,year,day;
+					
 					switch (c) {
 					case 'F':
 						month = "02";
@@ -91,7 +95,7 @@ public class DateTokenFilter extends TokenFilter {
 					{
 						Character third = myToken.getTermBuffer()[2];
 						int res = third.compareTo('r');
-						if(res == 0)
+					 	if(res == 0)
 						{
 							month = "03";
 						}
@@ -105,10 +109,94 @@ public class DateTokenFilter extends TokenFilter {
 						break;
 					}
 					Token nextToken = myStream.next();
-//                    if(nextToken.getTermText())
+					String tokenText = nextToken.getTermText();
+					
+					NumberFormat formatter = NumberFormat.getInstance();
+					  ParsePosition pos = new ParsePosition(0);
+					 Number number = formatter.parse(tokenText, pos);
+					
+                    if(tokenText.length() == pos.getIndex())
                     {
+                    	myStream.previous();
+                    	myStream.previous();
+                    	Token monthPreviousToken = myStream.previous();
+                    	pos.setIndex(0);
+                    	Number expectedDay = formatter.parse(monthPreviousToken.getTermText(),pos);
+                    	if(expectedDay == null)
+                    	{
+                    		year = "1900";
+                    		day  = number.toString(); 
+                    		myStream.next();
+                    		myStream.remove();
+                    		myStream.next();
+                    		myStream.remove();
+                       	}
+                    	else
+                    	{
+                    		year = getFormattedYear(number);
+                    		day  = expectedDay.toString();
+                    		myStream.remove();
+                        	myStream.next();
+                        	myStream.remove();
+                        	myStream.next();
+                        	myStream.remove();
+                    	}
                     	
                     }
+                    else
+                    {
+                    	day = number.toString();
+                    	Token predictedYearToken = myStream.next();
+                        pos.setIndex(0);
+                    	Number expectedYear = formatter.parse(predictedYearToken.getTermText(),pos);
+                        if(expectedYear != null)
+                        {
+                        	year = getFormattedYear(expectedYear);
+                        	myStream.remove();
+                        	myStream.previous();
+                        	myStream.remove();
+                        	myStream.previous();
+                        	myStream.remove();
+                        }
+                        else
+                        {
+                        	year = "1900";
+                        	myStream.previous();
+                        	myStream.remove();
+                        	myStream.previous();
+                        	myStream.remove();
+                        }
+                        
+                    }
+                    
+                    String dateString = year+month+day;
+                    Token insertToken = new Token();
+                    insertToken.setTermText(dateString);
+                    myStream.insert(myStream.getNextIndex(), insertToken);
+				}
+				else 
+				{
+					//code for 2011-14 format
+					String[] strings = myTokenText.split("-");
+					try
+					{
+						int yearFrom = Integer.parseInt(strings[0]);
+						int yearTo   = Integer.parseInt(strings[1]);
+						
+						int prefixYearTo = yearFrom/100;
+						yearTo = prefixYearTo*100+yearTo;
+						 
+						String dateString = yearFrom+"0101-"+yearTo+"0101";
+						myStream.remove();
+						Token insertToken = new Token();
+	                    insertToken.setTermText(dateString);
+						myStream.insert(myStream.getNextIndex(), insertToken);
+					}
+					catch (NumberFormatException e)
+					{
+						throw e;
+					}
+					
 				}
 				
 			}
@@ -116,6 +204,30 @@ public class DateTokenFilter extends TokenFilter {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static String getFormattedYear(Number yearInNumber)
+	{
+		String year;
+		int yearInt = yearInNumber.intValue();
+		if(yearInt < 1000 && yearInt > 99)
+        {
+        	year = "0"+yearInNumber.toString();
+        }
+        else if(yearInt < 100 && yearInt > 9)
+        {
+        	year = "00"+yearInNumber.toString();
+        }
+        else if(yearInt >= 0 && yearInt < 10)
+        {
+        	year = "000"+yearInNumber.toString();
+        }
+        else
+        {
+            year = yearInNumber.toString();	
+        }
+    	
+		return year;
 	}
 	
 	public static boolean isNumeric(String str)
