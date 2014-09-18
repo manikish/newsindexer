@@ -48,9 +48,10 @@ public class TokenFilterFactory {
 		case STOPWORD: 
 				//create new TokenFilter for stopword elimination.
 				myFilter = new StopwordTokenFilter(stream);
-		
+	
 		case CAPITALIZATION: 
 				myFilter = new CapitalizationTokenFilter(stream);
+
 		case DATE:
 		{
 			myFilter = new DateTokenFilter(stream);
