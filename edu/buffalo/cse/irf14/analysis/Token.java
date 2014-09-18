@@ -16,7 +16,25 @@ public class Token {
 	private String termText;
 	//The char array backing termText
 	private char[] termBuffer;
+	private Boolean isNoun;
+	private Boolean retainText;
 	
+	public Boolean getRetainText() {
+		return retainText;
+	}
+
+	public void setRetainText(Boolean retainText) {
+		this.retainText = retainText;
+	}
+
+	public Boolean getIsNoun() {
+		return isNoun;
+	}
+
+	public void setIsNoun(Boolean isNoun) {
+		this.isNoun = isNoun;
+	}
+
 	/**
 	 * Method to set the termText to given text.
 	 * This is a sample implementation and you CAN change this

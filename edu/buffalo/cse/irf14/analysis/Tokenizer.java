@@ -15,6 +15,7 @@ import edu.buffalo.cse.irf14.document.Parser;
 public class Tokenizer {
 	private String delim = Parser.SPACE_SEPERATOR;
 	private TokenStream tokenStream;
+//	private Boolean isFullStopEnabled = Boolean.FALSE;
 	/**
 	 * Default constructor. Assumes tokens are whitespace delimited
 	 */
@@ -52,14 +53,32 @@ public class Tokenizer {
 		if(tokenArray != null) {
 			for(String temp: tokenArray) {
 				if(!temp.isEmpty()) {
-					Token myToken = new Token();
-					myToken.setTermText(temp);
-					tokensArrayList.add(myToken);
+					int index = temp.indexOf(".");
+					if(index==-1 || index==temp.length()-1){
+						addTokens(tokensArrayList, temp);
+					}
+					else{
+						String[] temp2 = temp.split(".");
+						for(String s:temp2)
+							if(!s.isEmpty())
+								addTokens(tokensArrayList, s);
+					}
 				}
 			}
 		}
 		tokenStream = new TokenStream(tokensArrayList);
 		return tokenStream;
+	}
+
+	private void addTokens(ArrayList<Token> tokensArrayList, String temp) {
+		Token myToken = new Token();
+		myToken.setIsNoun(Boolean.FALSE);
+		if(!StopwordTokenFilter.STOPWORD_LIST.contains(temp.toLowerCase()))
+			myToken.setIsNoun(Boolean.TRUE);
+		myToken.setTermText(temp);
+		char c = temp.charAt(0);
+		if(c>=65 && c<=90) myToken.setRetainText(myToken.getIsNoun());
+		tokensArrayList.add(myToken);
 	}
 }
 

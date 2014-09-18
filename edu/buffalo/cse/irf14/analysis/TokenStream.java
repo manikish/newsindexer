@@ -17,11 +17,12 @@ import java.util.NoSuchElementException;
 public class TokenStream implements Iterator<Token>{
 	
 	private ArrayList<Token> tokenStream = new ArrayList<Token>(); 
-	private ListIterator<Token> listIterator = tokenStream.listIterator();
+	private ListIterator<Token> listIterator = null;
 	
 	public TokenStream(ArrayList<Token> tokensArrayList)
 	{
 		tokenStream = tokensArrayList;
+		listIterator = tokenStream.listIterator();
 	}
 	/**
 	 * Method that checks if there is any Token left in the stream
@@ -73,7 +74,8 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	public void reset() {
 		//TODO : YOU MUST IMPLEMENT THIS
-		listIterator = tokenStream.listIterator();
+		if(listIterator.previousIndex()== tokenStream.size()-1)
+			listIterator = tokenStream.listIterator();
 	}
 	
 	/**

@@ -10,3 +10,5 @@
 /ContentFilter.class
 /StopwordTokenFilter.class
 /StemmerTokenFilter.class
+/DateTokenFilter.class
+/CapitalizationTokenFilter.class

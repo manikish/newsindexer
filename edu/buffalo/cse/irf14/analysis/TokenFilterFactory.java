@@ -45,10 +45,9 @@ public class TokenFilterFactory {
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
 		TokenFilter myFilter = null;
 		switch(type) {
-		case STOPWORD: {
-				//create new TokenFilter for stopword elimination.
+		case STOPWORD: //create new TokenFilter for stopword elimination.
 				myFilter = new StopwordTokenFilter(stream);
-			}
+		case CAPITALIZATION: myFilter = new CapitalizationTokenFilter(stream);
 		}
 		return myFilter;
 	}

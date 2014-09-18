@@ -19,6 +19,9 @@ public class TFRuleBaseTest {
 		
 		while (filter.increment()) {
 			//Do nothing :/
+			
+			//added sumanth remove if not needed
+			filter.perform();
 		}
 		
 		tstream = filter.getStream();
