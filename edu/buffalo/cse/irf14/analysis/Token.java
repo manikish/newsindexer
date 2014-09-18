@@ -85,6 +85,15 @@ public class Token {
 	 */
 	protected void merge(Token...tokens) {
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
+		if(tokens.length>0) {
+			int length = 0;
+			StringBuffer newTermText = new StringBuffer(this.termText);
+			while(length!=tokens.length) {
+				newTermText.append(" "+ tokens[length]);
+				length++;
+			}
+			this.setTermText(newTermText.toString());
+		}
 	}
 	
 	/**

@@ -3,6 +3,10 @@
  */
 package edu.buffalo.cse.irf14.analysis;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * @author Administrator
  *
@@ -10,6 +14,7 @@ package edu.buffalo.cse.irf14.analysis;
 public class CapitalizationTokenFilter extends TokenFilter {
 	
 	private TokenFilter nextFilter;
+	private boolean isStreamAnalyzed;
 	
 	public CapitalizationTokenFilter(TokenStream stream) {
 		super(stream);
@@ -29,21 +34,40 @@ public class CapitalizationTokenFilter extends TokenFilter {
 	@Override
 	public void perform() {
 		TokenStream myStream = getStream();
+		if(!isStreamAnalyzed)
+			analyzeStream(myStream);
 		myStream.reset();
-		try {
-			if(increment()) {
-				Token myToken = myStream.next();
-				if(myToken.getRetainText()!=null && !myToken.getRetainText()) {
-					String text = myToken.getTermText();
-					text = text.replace(text.charAt(0), (char)(text.charAt(0)+32));
-					myToken.setTermText(text);
-					System.out.println(text);
-				}
-			}
-		} catch (TokenizerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		Token myToken = myStream.next();
+		if (myToken.getRetainText() != null && !myToken.getRetainText()) {
+			String text = myToken.getTermText();
+			text = text.replace(text.charAt(0), (char) (text.charAt(0) + 32));
+			myToken.setTermText(text);
+			System.out.println(text);
 		}
+	}
+
+	private void analyzeStream(TokenStream myStream) {
+		while(myStream.hasNext()) {
+			Token t= myStream.next();
+			List<Token> list = new ArrayList<Token>();
+			if(t.getRetainText()!=null && t.getRetainText()) {
+				//int length =0;
+				while(myStream.hasNext()) {
+					Boolean retainValue = myStream.next().getRetainText();
+					if(retainValue!=null && retainValue) {
+						list.add(myStream.previous());
+						myStream.remove();
+					//	length++;
+					}else {
+						break;
+					}
+				}
+				/*for(;length!=0;length--)
+					myStream.next();*/
+			}			
+			t.merge(list.toArray(new Token[0]));
+		}
+		isStreamAnalyzed = true;
 	}
 
 }
