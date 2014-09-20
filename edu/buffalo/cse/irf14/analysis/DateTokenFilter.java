@@ -3,14 +3,11 @@ package edu.buffalo.cse.irf14.analysis;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 
-import com.sun.xml.internal.fastinfoset.util.StringArray;
-
 
 public class DateTokenFilter extends TokenFilter {
 	private TokenFilter nextFilter;
 	private TokenStream myStream;
-	private static final String MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December" 
-			 ;
+	public static final String MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December";
 	private static final String OTHER_PATTERNS = "BC|AD|UTC|AM|PM|";
 	
 	@Override

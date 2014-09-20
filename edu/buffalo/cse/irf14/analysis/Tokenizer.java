@@ -48,26 +48,31 @@ public class Tokenizer {
 	 */
 	public TokenStream consume(String str) throws TokenizerException { //implement try catch block for casting exception
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
-		String[]  tokenArray = str.split(delim);
-		ArrayList<Token> tokensArrayList = new ArrayList<Token>();
-		if(tokenArray != null) {
-			for(String temp: tokenArray) {
-				if(!temp.isEmpty()) {
-					int index = temp.indexOf(".");
-					if(index==-1 || index==temp.length()-1){
-						addTokens(tokensArrayList, temp);
-					}
-					else{
-						String[] temp2 = temp.split(".");
-						for(String s:temp2)
-							if(!s.isEmpty())
-								addTokens(tokensArrayList, s);
+		if(str!=null && !str.isEmpty()) {
+			String[]  tokenArray = str.split(delim);
+			ArrayList<Token> tokensArrayList = new ArrayList<Token>();
+			if(tokenArray != null) {
+				for(String temp: tokenArray) {
+					if(!temp.isEmpty()) {
+						int index = temp.indexOf(".");
+						if(index==-1 || index==temp.length()-1){
+							addTokens(tokensArrayList, temp);
+						}
+						else{
+							String[] temp2 = temp.split(".");
+							for(String s:temp2)
+								if(!s.isEmpty())
+									addTokens(tokensArrayList, s);
+						}
 					}
 				}
 			}
+			tokenStream = new TokenStream(tokensArrayList);
+			return tokenStream;
 		}
-		tokenStream = new TokenStream(tokensArrayList);
-		return tokenStream;
+		else {
+			throw new TokenizerException();
+		}
 	}
 
 	private void addTokens(ArrayList<Token> tokensArrayList, String temp) {
