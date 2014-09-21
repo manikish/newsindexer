@@ -74,7 +74,9 @@ public class DateTokenFilter extends TokenFilter {
                     	myStream.previous();
                     	Token monthPreviousToken = myStream.previous();
                     	pos.setIndex(0);
-                    	Number expectedDay = formatter.parse(monthPreviousToken.getTermText(),pos);
+                    	Number expectedDay = null;
+                    	if(monthPreviousToken!=null)
+                    	expectedDay = formatter.parse(monthPreviousToken.getTermText(),pos);
                     	if(expectedDay == null)
                     	{
                     		year = "1900";

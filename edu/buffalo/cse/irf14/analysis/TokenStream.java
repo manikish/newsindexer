@@ -116,7 +116,10 @@ public class TokenStream implements Iterator<Token>{
 	{
 		try
 		{
-			return listIterator.previous();
+			if (listIterator.hasPrevious()) 
+				return listIterator.previous();
+			else
+				return null;
 		}
 		catch(NoSuchElementException e)
 		{
