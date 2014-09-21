@@ -4,11 +4,18 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 
 
+import com.sun.xml.internal.fastinfoset.util.StringArray;
+
+
 public class DateTokenFilter extends TokenFilter {
 	private TokenFilter nextFilter;
 	private TokenStream myStream;
-	public static final String MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December";
-	private static final String OTHER_PATTERNS = "BC|AD|UTC|AM|PM|";
+
+
+	private static final String[] months = {"January","February","March","April","May","June","July"
+		,"August","September","October","November","December"};
+
+	private static final String OTHER_PATTERNS = "BC|AD|AM|PM|";
 	
 	@Override
 	public void setNextFilter(TokenFilter nextFilter) {
@@ -37,82 +44,28 @@ public class DateTokenFilter extends TokenFilter {
 			while(increment()) {
 				Token myToken = myStream.next();
 				String myTokenText = myToken.getTermText();
-//code for the formats- 10 january 1990 && December 7, 1941 && April 11  
-				if (MONTHS.contains(myTokenText)) {
-					Character c = myToken.getTermBuffer()[0];
-					String month = null,year,day;
+//code for the formats- 10 january 1990 && December 7, 1941 && April 11 
+				
+				boolean isMonthMatching = false;
+				String month = "01",year = "1900",day = "01",suffix = "";
+				for (int i = 0; i < months.length; i++) {
+                    if (myTokenText.equalsIgnoreCase(months[i])) {
+                    	Integer m = i+1;
+						month = m.toString();
+                    	if(m < 10)
+                        month = "0"+month;
+						isMonthMatching = true;
+						break;
+					}
+				}
+				NumberFormat formatter = NumberFormat.getInstance();
+				  ParsePosition pos = new ParsePosition(0);
+				if (isMonthMatching) {
 					
-					switch (c) {
-					case 'F':
-						month = "02";
-						break;
-					case 'S':
-						month = "09";
-						break;
-					case 'O':
-						month = "10";
-						break;
-					case 'N':
-						month = "11";
-						break;
-					case 'D':
-						month = "12";
-						break;
-					case 'A':
-					{
-						Character second = myToken.getTermBuffer()[1];
-						int res = second.compareTo('p');
-						if(res==0)
-						{
-							month = "04";
-						}
-						else if(res>0)
-						{
-							month = "08";
-						}
-					}
-						break;
-					case 'J':
-					{
-						Character fourth = myToken.getTermBuffer()[3];
-						int res = fourth.compareTo('u');
-						if(res == 0)
-						{
-							month = "01";
-						}
-						else if(res>0)
-						{
-							month = "07";
-						}
-						else
-						{
-							month = "06";
-						}
-					}
-					break;
-					case 'M':
-					{
-						Character third = myToken.getTermBuffer()[2];
-						int res = third.compareTo('r');
-					 	if(res == 0)
-						{
-							month = "03";
-						}
-						else 
-						{
-							month = "05";
-						}
-					}
-					break;
-					default: 
-						month = "-1";
-						break;
-					}
 					Token nextToken = myStream.next();
 					String tokenText = nextToken.getTermText();
 					
-					NumberFormat formatter = NumberFormat.getInstance();
-					  ParsePosition pos = new ParsePosition(0);
+					
 					 Number number = formatter.parse(tokenText, pos);
 					
                     if(tokenText.length() == pos.getIndex())
@@ -147,12 +100,18 @@ public class DateTokenFilter extends TokenFilter {
                     {
                     	day = getFormattedDay(number);
                     	Token predictedYearToken = myStream.next();
+                    	String predictedYearTokenText = predictedYearToken.getTermText();
                         pos.setIndex(0);
                     	Number expectedYear = formatter.parse(predictedYearToken.getTermText(),pos);
                         if(expectedYear != null)
                         {
                         	year = getFormattedYear(expectedYear);
-                        	myStream.remove();
+                            int lengthDiff = predictedYearTokenText.length() - pos.getIndex();
+                        	if(lengthDiff != 0)
+                        	{
+                        		suffix = predictedYearTokenText.substring(pos.getIndex(), predictedYearTokenText.length());
+                        	}
+                           	myStream.remove();
                         	myStream.previous();
                         	myStream.remove();
                         	myStream.previous();
@@ -169,7 +128,7 @@ public class DateTokenFilter extends TokenFilter {
                         
                     }
                     
-                    String dateString = year+month+day;
+                    String dateString = year+month+day+suffix;
                     Token insertToken = new Token();
                     insertToken.setTermText(dateString);
                     myStream.insert(myStream.getNextIndex(), insertToken);
@@ -182,13 +141,20 @@ public class DateTokenFilter extends TokenFilter {
 					{
 						try
 						{
+	                    	pos.setIndex(0);
 							int yearFrom = Integer.parseInt(strings[0]);
-							int yearTo   = Integer.parseInt(strings[1]);
+	                    	int yearTo = formatter.parse(strings[1],pos).intValue();
 							
+	                    	if(yearTo<99 && strings[1].length()>2)
+	                    	{
+	                    		suffix = strings[1].substring(2);
+	                    	}
 							int prefixYearTo = yearFrom/100;
 							yearTo = prefixYearTo*100+yearTo;
 							 
-							String dateString = yearFrom+"0101-"+yearTo+"0101";
+                        	
+                        	
+							String dateString = yearFrom+"0101-"+yearTo+"0101"+suffix;
 							myStream.remove();
 							Token insertToken = new Token();
 		                    insertToken.setTermText(dateString);

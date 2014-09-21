@@ -74,7 +74,6 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	public void reset() {
 		//TODO : YOU MUST IMPLEMENT THIS
-		if(listIterator.previousIndex()== tokenStream.size()-1)
 			listIterator = tokenStream.listIterator();
 	}
 	
@@ -104,12 +103,13 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	public Token getCurrent() {
 		//TODO: YOU MUST IMPLEMENT THIS
-		listIterator.next();
-		Token token = listIterator.previous();
-		if (token != null) {
-			return token;
+		int index = getNextIndex()-1;
+		if(index>=0 && index < tokenStream.size())
+		{
+			return tokenStream.get(index);
 		}
-		return null;
+		else return null;
+		
 	}
 	
 	public Token previous()
@@ -132,7 +132,7 @@ public class TokenStream implements Iterator<Token>{
 	public void insert(int index,Token token) {
 		tokenStream.add(index, token);
 		listIterator = tokenStream.listIterator();
-		for(;index>0;index--)
+		for(;index>=0;index--)
 			listIterator.next();
 	}
 	
