@@ -77,9 +77,10 @@ public class Tokenizer {
 
 	private void addTokens(ArrayList<Token> tokensArrayList, String temp) {
 		Token myToken = new Token();
-		myToken.setIsNoun(Boolean.FALSE);
-		if(!StopwordTokenFilter.STOPWORD_LIST.contains(temp.toLowerCase()))
-			myToken.setIsNoun(Boolean.TRUE);
+		myToken.setIsNoun(Boolean.TRUE);
+		for(String s:StopwordTokenFilter.STOPWORD_LIST)
+			if (s.equalsIgnoreCase(temp))
+				myToken.setIsNoun(Boolean.FALSE);
 		myToken.setTermText(temp);
 		char c = temp.charAt(0);
 		if(c>=65 && c<=90) myToken.setRetainText(myToken.getIsNoun());

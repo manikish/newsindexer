@@ -4,7 +4,6 @@
 package edu.buffalo.cse.irf14.analysis;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -36,7 +35,6 @@ public class CapitalizationTokenFilter extends TokenFilter {
 		TokenStream myStream = getStream();
 		if(!isStreamAnalyzed)
 			analyzeStream(myStream);
-		myStream.reset();
 		Token myToken = myStream.next();
 		if (myToken.getRetainText() != null && !myToken.getRetainText()) {
 			String text = myToken.getTermText();
@@ -68,6 +66,7 @@ public class CapitalizationTokenFilter extends TokenFilter {
 			t.merge(list.toArray(new Token[0]));
 		}
 		isStreamAnalyzed = true;
+		myStream.reset();
 	}
 
 }

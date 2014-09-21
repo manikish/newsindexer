@@ -48,14 +48,16 @@ public class TokenFilterFactory {
 		case STOPWORD: 
 				//create new TokenFilter for stopword elimination.
 				myFilter = new StopwordTokenFilter(stream);
-	
+				break;
 		case CAPITALIZATION: 
 				myFilter = new CapitalizationTokenFilter(stream);
-
+				break;
 		case DATE:
-		{
-			myFilter = new DateTokenFilter(stream);
-		}
+				myFilter = new DateTokenFilter(stream);
+				break;
+		case STEMMER: 
+				myFilter = new StemmerTokenFilter(stream);
+				break;
 		}
 		return myFilter;
 	}
