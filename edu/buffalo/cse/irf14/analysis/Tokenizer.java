@@ -54,16 +54,19 @@ public class Tokenizer {
 			if(tokenArray != null) {
 				for(String temp: tokenArray) {
 					if(!temp.isEmpty()) {
+						addTokens(tokensArrayList, temp);
+						/*
 						int index = temp.indexOf(".");
-						if(index==-1 || index==temp.length()-1){
+						if(index==-1 || index==temp.length()-1 || temp.matches("[0-9]*[\\.]+[0-9]*[]") ){
 							addTokens(tokensArrayList, temp);
 						}
 						else{
-							String[] temp2 = temp.split(".");
+							String[] temp2 = temp.split("\\.");
 							for(String s:temp2)
 								if(!s.isEmpty())
 									addTokens(tokensArrayList, s);
 						}
+						 */
 					}
 				}
 			}

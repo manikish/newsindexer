@@ -58,6 +58,9 @@ public class TokenFilterFactory {
 		case STEMMER: 
 				myFilter = new StemmerTokenFilter(stream);
 				break;
+		case NUMERIC:
+				myFilter = new NumberTokenFilter(stream);
+				break;
 		}
 		return myFilter;
 	}
