@@ -87,13 +87,23 @@ public class DateTokenFilter extends TokenFilter {
 			                handleAMPMTimeFormats(patternIndex);
 						}
 				}
+				handleMiscAMPMTimeFormats(myTokenText);
+				
 					pos.setIndex(0);
                     Number yearNumber = formatter.parse(myTokenText, pos);
                     int yearPredicted = -1;
-                    if(yearNumber != null && myTokenText.length() == pos.getIndex())
+                    if(yearNumber != null)
                     {
-                    	yearPredicted = yearNumber.intValue();
+                    	if(myTokenText.length() == pos.getIndex())
+                    	{
+                        	yearPredicted = yearNumber.intValue();
+                    	}
+                    	 else
+                         {
+                         	handleMiscBCADFormats(myTokenText);
+                         }
                     }
+                   
                     if(yearPredicted > 999 && yearPredicted < 9999)
                     {
                         myStream.remove();
@@ -230,6 +240,69 @@ public class DateTokenFilter extends TokenFilter {
         myStream.insert(myStream.getNextIndex(), insertToken);
 	}
 	
+	public void handleMiscAMPMTimeFormats(String myTokenText)
+	{
+		String REGEX = "[0-2]?\\d:[0-5]?\\d[AP]M";
+		Pattern r = Pattern.compile(REGEX);
+        Matcher m = r.matcher(myTokenText);
+        if (m.find())
+        {
+        	NumberFormat formatter = NumberFormat.getInstance();
+  		  ParsePosition pos = new ParsePosition(0);
+  		  
+        	String[] components = myTokenText.split(":");
+        	Number minutesNumber = formatter.parse(components[1],pos);
+        	String timeFormat = components[1].substring(pos.getIndex());
+        	
+        	String[] timeFormats = {"AM","AM.","PM","PM."};
+        	
+        	int patternIndex = -1;
+			for (int i = 0; i < timeFormats.length; i++) {
+                if (timeFormat.equalsIgnoreCase(timeFormats[i])) {
+                	patternIndex = i;
+                    break;
+                }
+			}
+			
+			String modifiedString = null;
+			myStream.remove();
+			String hours = components[0], minutes = minutesNumber.toString();
+			if(components[0].length() < 2)
+			{
+				hours = "0"+components[0];
+				if(patternIndex == 2 || patternIndex == 3)
+				{
+					int hoursInt = Integer.parseInt(hours);
+					if(hoursInt != 12)
+					{
+						hoursInt = hoursInt+12;
+						hours = ""+hoursInt;
+					}
+					
+				}
+			}
+			if(minutesNumber.intValue() < 10)
+			{
+				minutes = "0"+minutes;
+			}
+			
+			switch(patternIndex)
+			{
+			case 0:
+			case 2:
+				modifiedString = hours+":"+minutes+":00";
+			    break;
+			case 1:
+			case 3:
+				modifiedString = hours+":"+minutes+":00"+".";
+				break;
+			}
+			Token insertToken = new Token();
+            insertToken.setTermText(modifiedString);
+			myStream.insert(myStream.getNextIndex(), insertToken);
+        }
+	}
+	
 	public void handleAMPMTimeFormats(int patternIndex)
 	{
 		myStream.previous();
@@ -271,6 +344,53 @@ public class DateTokenFilter extends TokenFilter {
         }
 	}
 	
+	public void handleMiscBCADFormats(String myTokenText)
+	{
+		String REGEX = "^\\d*[AB][DC]";
+
+		Pattern r = Pattern.compile(REGEX);
+        Matcher m = r.matcher(myTokenText);
+        if(m.find())
+        {
+        	myStream.remove();
+        	NumberFormat formatter = NumberFormat.getInstance();
+  		    ParsePosition pos = new ParsePosition(0);
+            Number yearNumber = formatter.parse(myTokenText, pos);
+            
+            String[] yearFormats = {"AD","AD.","BC","BC."};
+        	String yearFormat = myTokenText.substring(pos.getIndex());
+            
+        	int patternIndex = -1;
+			for (int i = 0; i < yearFormats.length; i++) {
+                if (yearFormat.equalsIgnoreCase(yearFormats[i])) {
+                	patternIndex = i;
+                    break;
+                }
+			}
+			
+			String year = getFormattedYear(yearNumber);
+			String modifiedString = "";
+			switch(patternIndex)
+			{
+			case 0: 
+				modifiedString = year+"0101";
+				break;
+			case 1:
+				modifiedString = year+"0101.";
+				break;
+			case 2:
+				modifiedString = "-"+year+"0101";
+				break;
+			case 3:
+				modifiedString = "-"+year+"0101.";
+                break;
+			}
+			Token insertToken = new Token();
+            insertToken.setTermText(modifiedString);
+			 myStream.insert(myStream.getNextIndex(), insertToken);
+        }
+	}
+	
 	public void handleBCADYearFormats(int patternIndex)
 	{
 		NumberFormat formatter = NumberFormat.getInstance();
@@ -306,7 +426,7 @@ public class DateTokenFilter extends TokenFilter {
         	
              Token insertToken = new Token();
              insertToken.setTermText(dateString);
-				myStream.insert(myStream.getNextIndex(), insertToken);
+			 myStream.insert(myStream.getNextIndex(), insertToken);
         }
 
 	}
