@@ -61,6 +61,9 @@ public class TokenFilterFactory {
 		case NUMERIC:
 				myFilter = new NumberTokenFilter(stream);
 				break;
+		case SYMBOL:
+				myFilter = new SymbolTokenFilter(stream);
+				break;
 		}
 		return myFilter;
 	}

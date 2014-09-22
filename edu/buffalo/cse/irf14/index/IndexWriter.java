@@ -18,6 +18,8 @@ import edu.buffalo.cse.irf14.document.FieldNames;
 public class IndexWriter {
 	
 	public static String indexDir;
+	public static final AnalyzerFactory myAnalyzerFactory = AnalyzerFactory.getInstance();
+	public static final IndexerFactory myIndexerFactory = IndexerFactory.getInstance();
 	/**
 	 * Default constructor
 	 * @param indexDir : The root directory to be sued for indexing
@@ -37,17 +39,18 @@ public class IndexWriter {
 	 */
 	public void addDocument(Document d) throws IndexerException {
 		//TODO : YOU MUST IMPLEMENT THIS
-		AnalyzerFactory myFactory = AnalyzerFactory.getInstance();
+		
 		Tokenizer myTokenizer = new Tokenizer();
 		TokenStream myStream = null;
 		try {
 			myStream = myTokenizer.consume(d.getField(FieldNames.CONTENT)[0]);// modify this hardcoded [0]
-			TokenFilter myFilter = (TokenFilter)myFactory.getAnalyzerForField(FieldNames.CONTENT, myStream);
+			TokenFilter myFilter = (TokenFilter)myAnalyzerFactory.getAnalyzerForField(FieldNames.CONTENT, myStream);
 			while(myFilter!=null) {
 				myFilter.perform();
 				myFilter = myFilter.getNextFilter();
 			}
-			IndexerFactory.getInstance().getClassForIndex(IndexType.TERM).write(myStream, d.getField(FieldNames.FILEID)[0]);//hardcoded 0
+			Writer indexer = myIndexerFactory.getClassForIndex(IndexType.TERM);
+			indexer.write(myStream, d.getField(FieldNames.FILEID)[0]);//hardcoded 0
 		} catch (TokenizerException e) {
 			// TODO Auto-generated catch block
 			throw new IndexerException();
