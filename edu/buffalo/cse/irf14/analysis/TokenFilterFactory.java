@@ -64,6 +64,9 @@ public class TokenFilterFactory {
 		case SYMBOL:
 				myFilter = new SymbolTokenFilter(stream);
 				break;
+		case ACCENT: 
+				myFilter = new AccentTokenFilter(stream);
+				break;
 		}
 		return myFilter;
 	}
