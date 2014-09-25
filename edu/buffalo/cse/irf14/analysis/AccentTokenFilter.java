@@ -1,5 +1,8 @@
 package edu.buffalo.cse.irf14.analysis;
 
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
+
 
 public class AccentTokenFilter extends TokenFilter {
 
@@ -36,7 +39,7 @@ public class AccentTokenFilter extends TokenFilter {
 			myToken = myStream.next();
 			String text = myToken.getTermText();
 			StringBuffer result = new StringBuffer("");
-			//text = Normalizer.normalize(text, Form.NFD);
+			text = Normalizer.normalize(text, Form.NFC);
 			for(int i=0; i<text.length();i++) {
 				char myChar = text.charAt(i);
 				if(myChar >= '\u00c0' && myChar <= '\u017f') {
