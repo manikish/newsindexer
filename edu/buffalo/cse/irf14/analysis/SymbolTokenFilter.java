@@ -10,6 +10,7 @@ public class SymbolTokenFilter extends TokenFilter {
 	private TokenFilter nextFilter;
 	private TokenStream myStream;
 	private Token myToken;
+	private boolean numberInToken = false;
 	private static final String[] QUOTE_LIST = {"'s","'ve","'re","won't","shan't","n't","'d","'m","'ll","'em"};
 	private static final String[] QUOTE_SUB = {""," have"," are","will not","shall not"," not"," would"," am"," will","them"};
 	public static Map<String, String> map = new HashMap<String, String>();
@@ -55,6 +56,38 @@ public class SymbolTokenFilter extends TokenFilter {
 				matcher = pattern.matcher(text);
 			}
 			myToken.setTermText(text);
+			
+			//test for hyphen
+			int index = text.indexOf("-");
+			if(index!=-1) {
+				String[] temp = text.split("-");
+				for(String t:temp){
+					if(numberInToken)
+						break;
+					else {
+						if(t.matches(".*[0-9]+.*")) {
+							numberInToken = true;	
+						}
+					}	
+				}
+				if(!numberInToken) {
+					text = "";
+					for(String s: temp) {
+						if(!s.isEmpty())
+							text = text+" "+s;
+					}
+					myToken.setTermText(text.trim());
+					/*
+					String temp2 = text.replaceAll("-", "");
+					if(temp2.isEmpty())
+						myStream.remove();
+					else {
+						text = text.replaceAll("-", " ");
+						myToken.setTermText(text);
+					}
+					 */
+				}
+			}
 		}
 	}
 

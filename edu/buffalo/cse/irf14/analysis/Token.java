@@ -34,6 +34,13 @@ public class Token {
 	public void setIsNoun(Boolean isNoun) {
 		this.isNoun = isNoun;
 	}
+	
+	//added both default and argument constructor
+	public Token() {}
+	public Token(String text) {
+		this.termText = text;
+		this.termBuffer = (text != null) ? text.toCharArray() : null;
+	}
 
 	/**
 	 * Method to set the termText to given text.
