@@ -7,8 +7,6 @@ import java.text.ParsePosition;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.xml.internal.fastinfoset.util.StringArray;
-
 
 public class DateTokenFilter extends TokenFilter {
 	private TokenFilter nextFilter;

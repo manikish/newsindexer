@@ -64,6 +64,9 @@ public class TokenFilterFactory {
 		case SYMBOL:
 				myFilter = new SymbolTokenFilter(stream);
 				break;
+		case SPECIALCHARS:
+			    myFilter = new SpecialCharTokenFilter(stream);
+			    break;
 		}
 		return myFilter;
 	}
