@@ -24,7 +24,6 @@ public class IndexWriter {
 	
 	public static String indexDir;
 	public static final AnalyzerFactory myAnalyzerFactory = AnalyzerFactory.getInstance();
-	public static final IndexerFactory myIndexerFactory = IndexerFactory.getInstance();
 	
 	 public static HashMap<String, Integer> termDictionary = new HashMap<>();
 	 public static HashMap<Integer, List<String>> termIndex = new HashMap<Integer, List<String>>();
