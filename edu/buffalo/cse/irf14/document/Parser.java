@@ -58,7 +58,7 @@ public class Parser {
 			myDocument.setField(FieldNames.CATEGORY, myCategory.trim());
 			
 			//Added for testing
-			System.out.println("File: "+myCategory.trim()+"\\"+myFileId.trim());
+//			System.out.println("File: "+myCategory.trim()+"\\"+myFileId.trim());
 			
 			 //read each line and populate Title and other fields
 			Scanner myScanner = new Scanner(new File(filename));
@@ -84,7 +84,10 @@ public class Parser {
 			myDocument.setField(FieldNames.TITLE, title.toString());
 			myScanner.close();
 			//set the Content to the Document obj
-			myDocument.setField(FieldNames.CONTENT, myContent.toString());
+			if(myContent.toString().length()!=0)
+			{
+				myDocument.setField(FieldNames.CONTENT, myContent.toString());
+			}
 			restoreDefaults();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -178,7 +181,10 @@ public class Parser {
 			}
 		}
 		else {
-			myContent = myContent.append(SPACE_SEPERATOR).append(aText.trim());
+			if(aText.trim().length()!=0)
+			{
+				myContent = myContent.append(SPACE_SEPERATOR).append(aText.trim());
+			}
 		}
 	}
 private static void parsePlaceAndDate(Document document, String aText)
@@ -207,9 +213,12 @@ private static void parsePlaceAndDate(Document document, String aText)
 									place = place + cityAndDateComponents[j] +",";
 								}
 							}
-		    				document.setField(FieldNames.PLACE, place.trim());
+		    				if(place.trim().length()!=0)
+		    				{
+			    				document.setField(FieldNames.PLACE, place.trim());
+		    				}
 							isPlaceAndDateGiven = true;
-							if (firstLineComponents.length > 1) {
+							if (firstLineComponents.length > 1 && firstLineComponents[1].trim().length()!=0) {
 								myContent = new StringBuffer(firstLineComponents[1].trim());
 							}
 							break;
@@ -223,7 +232,7 @@ private static void parsePlaceAndDate(Document document, String aText)
 		}
 		
 		
-		if (!isPlaceAndDateGiven) {
+		if (!isPlaceAndDateGiven && aText.trim().length()!=0) {
 			myContent = new StringBuffer(aText.trim());
 
 		}
