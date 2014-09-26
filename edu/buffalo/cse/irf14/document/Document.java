@@ -4,6 +4,7 @@
 package edu.buffalo.cse.irf14.document;
 
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * @author nikhillo
@@ -36,5 +37,10 @@ public class Document {
 	 */
 	public String[] getField(FieldNames fn) {
 		return map.get(fn);
+	}
+	
+	public Set<FieldNames> getFieldNames()
+	{
+		return map.keySet();
 	}
 }

@@ -18,9 +18,9 @@ public class IndexerFactory {
 	public Writer getClassForIndex(IndexType type) {
 		Writer myWriter = null;
 		switch(type) {
-		case AUTHOR: myWriter = null;
-		case CATEGORY: myWriter = null;
-		case PLACE: myWriter = null;
+		case AUTHOR: myWriter = new AuthorIndexWriter(); break;
+		case CATEGORY: myWriter = new CategoryIndexWriter(); break;
+		case PLACE: myWriter = new PlaceIndexWriter(); break;
 		default: myWriter = new TermIndexWriter();
 		}
 		return myWriter;

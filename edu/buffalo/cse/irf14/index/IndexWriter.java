@@ -43,14 +43,40 @@ public class IndexWriter {
 		Tokenizer myTokenizer = new Tokenizer();
 		TokenStream myStream = null;
 		try {
-			myStream = myTokenizer.consume(d.getField(FieldNames.CONTENT)[0]);// modify this hardcoded [0]
-			TokenFilter myFilter = (TokenFilter)myAnalyzerFactory.getAnalyzerForField(FieldNames.CONTENT, myStream);
-			while(myFilter!=null) {
-				myFilter.perform();
-				myFilter = myFilter.getNextFilter();
+			//hardcoded 0
+			
+			for (FieldNames fieldName : d.getFieldNames()) {
+				myStream = myTokenizer.consume(d.getField(fieldName)[0]);// modify this hardcoded [0]
+				TokenFilter myFilter = (TokenFilter)myAnalyzerFactory.getAnalyzerForField(fieldName, myStream);
+				Writer indexer = null;
+				while(myFilter!=null) {
+					myFilter.perform();
+					myFilter = myFilter.getNextFilter();
+				}
+				
+				switch (fieldName) {
+				case AUTHOR:
+					indexer = myIndexerFactory.getClassForIndex(IndexType.AUTHOR);
+					indexer.write(myStream, d.getField(FieldNames.FILEID)[0]);
+					break;
+				case CATEGORY:
+					indexer = myIndexerFactory.getClassForIndex(IndexType.CATEGORY);
+					indexer.write(myStream, d.getField(FieldNames.FILEID)[0]);
+					break;
+				case PLACE:
+					indexer = myIndexerFactory.getClassForIndex(IndexType.PLACE);
+					indexer.write(myStream, d.getField(FieldNames.FILEID)[0]);
+					break;
+				case FILEID:
+					break;
+				default:
+					indexer = myIndexerFactory.getClassForIndex(IndexType.TERM);
+					indexer.write(myStream, d.getField(FieldNames.FILEID)[0]);
+					break;
+				}
 			}
-			Writer indexer = myIndexerFactory.getClassForIndex(IndexType.TERM);
-			indexer.write(myStream, d.getField(FieldNames.FILEID)[0]);//hardcoded 0
+			
+			
 		} catch (TokenizerException e) {
 			// TODO Auto-generated catch block
 			throw new IndexerException();
