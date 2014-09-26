@@ -30,7 +30,6 @@ public class Parser {
 	private static StringBuffer myContent = new StringBuffer();
 	private static StringBuffer title = new StringBuffer();
 
-	private static Boolean isFirstLineOfText = Boolean.TRUE;
 	private static Boolean AUTHOR_TAG_SET = Boolean.FALSE;
 	private static Boolean isPlaceAndDateGiven = Boolean.FALSE;
 
@@ -112,7 +111,6 @@ public class Parser {
 		// TODO Auto-generated method stub
 		isContentStarted = Boolean.FALSE;
 		myContent = new StringBuffer();
-		isFirstLineOfText = Boolean.TRUE;
 		AUTHOR_TAG_SET = Boolean.FALSE;
 		isPlaceAndDateGiven = Boolean.FALSE;
 		title = new StringBuffer();

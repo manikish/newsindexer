@@ -88,9 +88,19 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	public void append(TokenStream stream) {
 		//TODO : YOU MUST IMPLEMENT THIS
-		for (Token token : stream.tokenStream) {
-			tokenStream.add(token);
+		if(stream != null)
+		{
+			for (Token token : stream.tokenStream) {
+				tokenStream.add(token);
+			}
+			int index = listIterator.nextIndex()-1;
+
+			listIterator = tokenStream.listIterator();
+			for(;index>=0;index--)
+				listIterator.next();
 		}
+			
+		
 	}
 	
 	/**

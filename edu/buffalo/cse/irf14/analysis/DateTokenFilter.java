@@ -2,12 +2,8 @@ package edu.buffalo.cse.irf14.analysis;
 
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.sun.xml.internal.fastinfoset.util.StringArray;
 
 
 public class DateTokenFilter extends TokenFilter {

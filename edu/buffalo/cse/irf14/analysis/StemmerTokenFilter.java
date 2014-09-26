@@ -7,12 +7,14 @@ public class StemmerTokenFilter extends TokenFilter {
 	i_end, /* offset to end of stemmed word */
 	j, k;
 	private static final int INC = 50;
-
+    private TokenStream myStream;
+	
 	/* unit of size whereby b is increased */
 
 	public StemmerTokenFilter(TokenStream stream) {
 		super(stream);
 		// TODO Auto-generated constructor stub
+		myStream = stream;
 		b = new char[INC];
 		i = 0;
 		i_end = 0;
@@ -33,15 +35,25 @@ public class StemmerTokenFilter extends TokenFilter {
 	@Override
 	public void perform() {
 		// TODO Auto-generated method stub
-		TokenStream myStream = getStream();
-		Token myToken = myStream.next();
-		char c = myToken.getTermText().charAt(0);
-		if((c>=65&&c<=90)||c>=97&&c<=122) {
-			for(char ch:myToken.getTermBuffer())
-				add(ch);
-			stem();
-			myToken.setTermText(toString());
+		myStream.reset();
+		
+		
+		try {
+			while (increment()) {
+				Token myToken = myStream.next();
+				char c = myToken.getTermText().charAt(0);
+				if((c>=65&&c<=90)||c>=97&&c<=122) {
+					for(char ch:myToken.getTermBuffer())
+						add(ch);
+					stem();
+					myToken.setTermText(toString());
+				}
+			}
+		} catch (TokenizerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
 		
 	}
 	/**
