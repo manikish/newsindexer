@@ -153,7 +153,10 @@ public class Parser {
 				if(myStartIndex!=-1 && myEndIndex!=-1 && !(myStartIndex>myEndIndex)) {
 					myText = aText.substring(myStartIndex+8, myEndIndex).trim();
 					myFields = myText.indexOf(COMMA_SEPERATOR)!= -1?myText.split(COMMA_SEPERATOR):new String[] {myText, " "};
-					aDocument.setField(FieldNames.AUTHORORG, myFields[1].trim()); 
+					if(myFields[1].trim().length() != 0)
+					{
+						aDocument.setField(FieldNames.AUTHORORG, myFields[1].trim()); 
+					}
 					if(AUTHOR_BY_DELIMITER.equalsIgnoreCase(myFields[0].split(SPACE_SEPERATOR)[0])) { 
 						myText = myFields[0].substring(AUTHOR_BY_DELIMITER.length()).trim();   
 					}
@@ -180,9 +183,7 @@ public class Parser {
 	}
 private static void parsePlaceAndDate(Document document, String aText)
 	{
-		document.setField(FieldNames.PLACE, new String(""));
-		document.setField(FieldNames.NEWSDATE, new String("")); 
-		
+	
 		String[] firstLineComponents = aText.split(CONTENT_HYPHEN_SEPERATOR);
 		if (firstLineComponents.length > 0 ) {
 			String[] cityAndDateComponents = firstLineComponents[0].split(COMMA_SEPERATOR);
@@ -224,8 +225,7 @@ private static void parsePlaceAndDate(Document document, String aText)
 		
 		if (!isPlaceAndDateGiven) {
 			myContent = new StringBuffer(aText.trim());
-			document.setField(FieldNames.PLACE, new String(""));
-			document.setField(FieldNames.NEWSDATE, new String("")); 
+
 		}
 		isContentStarted = Boolean.TRUE;
 	}
