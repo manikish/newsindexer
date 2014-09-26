@@ -3,14 +3,19 @@
  */
 package edu.buffalo.cse.irf14.index;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author nikhillo
  * Class that emulates reading data back from a written index
  */
 public class IndexReader {
+	
+	private static HashMap<String, Integer> dictionary = new HashMap<String, Integer>();
+	private static HashMap<Integer, List<String>> index = new HashMap<Integer, List<String>>(); 
 	/**
 	 * Default constructor
 	 * @param indexDir : The root directory from which the index is to be read.
@@ -20,6 +25,26 @@ public class IndexReader {
 	 */
 	public IndexReader(String indexDir, IndexType type) {
 		//TODO
+		switch (type) {
+		case TERM:
+			dictionary = IndexWriter.termDictionary;
+			index      = IndexWriter.termIndex;
+			break;
+		case AUTHOR:
+			dictionary = IndexWriter.authorDictionary;
+			index      = IndexWriter.authorIndex;
+			break;
+		case PLACE:
+			dictionary = IndexWriter.placeDictionary;
+			index      = IndexWriter.placeIndex;
+			break;
+		case CATEGORY:
+			dictionary = IndexWriter.categoryDictionary;
+			index      = IndexWriter.categoryIndex;
+			break;
+		default:
+			break;
+		}
 	}
 	
 	/**
@@ -29,7 +54,7 @@ public class IndexReader {
 	 */
 	public int getTotalKeyTerms() {
 		//TODO : YOU MUST IMPLEMENT THIS
-		return -1;
+		return dictionary.keySet().size();
 	}
 	
 	/**
@@ -39,7 +64,7 @@ public class IndexReader {
 	 */
 	public int getTotalValueTerms() {
 		//TODO: YOU MUST IMPLEMENT THIS
-		return -1;
+		return dictionary.values().size();
 	}
 	
 	/**
