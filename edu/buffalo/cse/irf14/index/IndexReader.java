@@ -58,7 +58,7 @@ public class IndexReader {
 		case CATEGORY:
 			dictionary = IndexWriter.categoryDictionary;
 			index      = IndexWriter.categoryIndex;
-			names = FieldNames.AUTHORORG;
+			names = FieldNames.CATEGORY;
 			break;
 		default:
 			break;
@@ -164,7 +164,7 @@ public class IndexReader {
 	public Map<String, Integer> query(String...terms) {
 		//TODO : BONUS ONLY
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		List<TermDocumentFreq> myList = new ArrayList()<TermDocumentFreq>;
+		List<TermDocumentFreq> myList = new ArrayList<TermDocumentFreq>();
 		List<Token> myTokenList = new ArrayList<Token>();
 		for(String queryTerm: terms)
 			myTokenList.add(new Token(queryTerm));
@@ -188,9 +188,13 @@ public class IndexReader {
 			else {
 				myList.addAll(postingsList);
 			}
-			
 		}
-		return null;
+		if(myList.size()==0)
+			return null;
+		for(TermDocumentFreq queryTerm: myList) {
+			map.put(queryTerm.getFileId(), queryTerm.getFrequency());
+		}
+		return map;
 	}
 
 	private List<TermDocumentFreq> intersectPostingsForTerms(List<TermDocumentFreq> myList,	List<TermDocumentFreq> postingsList) {
@@ -199,7 +203,9 @@ public class IndexReader {
 		for(int value;i<myList.size()-1 && j<postingsList.size()-1;) {
 			value = myList.get(i).getFileId().compareTo(postingsList.get(j).getFileId());
 			if(value==0) {
-				result.add(myList.get(i));
+				result.add(new TermDocumentFreq(
+						myList.get(i).getFileId(),
+						myList.get(i).getFrequency()+ postingsList.get(i).getFrequency()));
 				i++; j++;
 			}else if(value < 0) {
 				i++;

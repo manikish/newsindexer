@@ -5,6 +5,8 @@ public class TermDocumentFreq {
 	private String fileId;
 	private Integer frequency = new Integer(0);
 	
+	public TermDocumentFreq() {}
+	
 	public TermDocumentFreq(String fileId, Integer frequency) {
 		this.fileId = fileId;
 		this.frequency = frequency;

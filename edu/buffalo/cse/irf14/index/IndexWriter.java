@@ -119,18 +119,14 @@ public class IndexWriter {
         	{
         		count++;
         		dictionary.put(tokenText,count);
-            	TermDocumentFreq termDocItem = new TermDocumentFreq();
-            	termDocItem.setFileId(fileId);
-            	termDocItem.setFrequency(termDocItem.getFrequency()+1);
+            	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
             	docsList.add(termDocItem);
             	index.put(count, docsList);
         	}else
         	{
                 docsList = index.get(ind);
                 if(!docsList.contains(fileId)) {
-                	TermDocumentFreq termDocItem = new TermDocumentFreq();
-                	termDocItem.setFileId(fileId);
-                	termDocItem.setFrequency(termDocItem.getFrequency()+1);
+                	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
                 	docsList.add(termDocItem);
                 	index.put(ind, docsList);
                 }
