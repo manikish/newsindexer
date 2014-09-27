@@ -3,10 +3,19 @@
  */
 package edu.buffalo.cse.irf14.index;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+
+import edu.buffalo.cse.irf14.analysis.Analyzer;
+import edu.buffalo.cse.irf14.analysis.AnalyzerFactory;
+import edu.buffalo.cse.irf14.analysis.Token;
+import edu.buffalo.cse.irf14.analysis.TokenFilter;
+import edu.buffalo.cse.irf14.analysis.TokenStream;
+import edu.buffalo.cse.irf14.document.FieldNames;
 
 /**
  * @author nikhillo
@@ -15,7 +24,10 @@ import java.util.Set;
 public class IndexReader {
 	
 	private static HashMap<String, Integer> dictionary = new HashMap<String, Integer>();
-	private static HashMap<Integer, List<String>> index = new HashMap<Integer, List<String>>(); 
+	private static HashMap<Integer, List<TermDocumentFreq>> index = new HashMap<Integer, List<TermDocumentFreq>>();
+	private IndexType indexType;
+	private String indexDir;
+	private FieldNames names;
 	/**
 	 * Default constructor
 	 * @param indexDir : The root directory from which the index is to be read.
@@ -25,22 +37,28 @@ public class IndexReader {
 	 */
 	public IndexReader(String indexDir, IndexType type) {
 		//TODO
+		this.indexType = type;
+		this.indexDir = indexDir;
 		switch (type) {
 		case TERM:
 			dictionary = IndexWriter.termDictionary;
 			index      = IndexWriter.termIndex;
+			names = FieldNames.CONTENT;
 			break;
 		case AUTHOR:
 			dictionary = IndexWriter.authorDictionary;
 			index      = IndexWriter.authorIndex;
+			names = FieldNames.AUTHOR;
 			break;
 		case PLACE:
 			dictionary = IndexWriter.placeDictionary;
 			index      = IndexWriter.placeIndex;
+			names = FieldNames.PLACE;
 			break;
 		case CATEGORY:
 			dictionary = IndexWriter.categoryDictionary;
 			index      = IndexWriter.categoryIndex;
+			names = FieldNames.AUTHORORG;
 			break;
 		default:
 			break;
@@ -77,7 +95,15 @@ public class IndexReader {
 	 */
 	public Map<String, Integer> getPostings(String term) {
 		//TODO:YOU MUST IMPLEMENT THIS
-		return null;
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		Integer id = dictionary.get(term);
+		if(id==null)
+			return null;
+		List<TermDocumentFreq> myList = index.get(id);
+		for(TermDocumentFreq termDocItem: myList) {
+			map.put(termDocItem.getFileId(), termDocItem.getFrequency());
+		}
+		return map;
 	}
 	
 	/**
@@ -89,7 +115,40 @@ public class IndexReader {
 	 */
 	public List<String> getTopK(int k) {
 		//TODO YOU MUST IMPLEMENT THIS
-		return null;
+		TreeMap<Integer, List<String>> treeMap = new TreeMap<Integer, List<String>>();
+		Set<String> keySet = dictionary.keySet();
+		for(String key: keySet) {
+			Integer frequency = new Integer(0);
+			List<TermDocumentFreq> myList = index.get(dictionary.get(key));
+			for(TermDocumentFreq term: myList) {
+				frequency += term.getFrequency();
+			}
+			if(treeMap.containsKey(frequency)) {
+				List<String> temp = treeMap.get(frequency);
+				temp.add(key);
+				treeMap.put(frequency, temp);
+			}
+			else {
+				List<String> temp = new ArrayList<String>();
+				temp.add(key);
+				treeMap.put(frequency, temp);
+			}
+		}
+		Set<Integer> freqKeys = treeMap.descendingKeySet();
+		List<String> myList = new ArrayList<String>();
+		for(Integer key: freqKeys) {
+			List<String> temp = treeMap.get(key);
+			if(k >= temp.size()) {
+				myList.addAll(temp);
+				k = k- temp.size();
+			}
+			else {
+				for(int i=0; i<k; i++) {
+					myList.add(temp.get(i));
+				}
+			}			
+		}
+		return myList;
 	}
 	
 	/**
@@ -104,6 +163,51 @@ public class IndexReader {
 	 */
 	public Map<String, Integer> query(String...terms) {
 		//TODO : BONUS ONLY
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		List<TermDocumentFreq> myList = new ArrayList()<TermDocumentFreq>;
+		List<Token> myTokenList = new ArrayList<Token>();
+		for(String queryTerm: terms)
+			myTokenList.add(new Token(queryTerm));
+		TokenStream myStream = new TokenStream((ArrayList<Token>) myTokenList);
+		AnalyzerFactory myAnalyzerFactory = AnalyzerFactory.getInstance();
+		TokenFilter myFilter = (TokenFilter) myAnalyzerFactory.getAnalyzerForField(names, myStream);
+		while(myFilter!=null) {
+			myFilter.perform();
+			myFilter = myFilter.getNextFilter();
+		}
+		while(myStream.hasNext()) {
+			Token myToken = myStream.next();
+			String queryTerm = myToken.getTermText();
+			if(dictionary.get(queryTerm)==null) {
+				return null;
+			}
+			List<TermDocumentFreq> postingsList = index.get(dictionary.get(queryTerm));
+			if(myList.size()!=0) {
+				myList = intersectPostingsForTerms(myList, postingsList);
+			}
+			else {
+				myList.addAll(postingsList);
+			}
+			
+		}
 		return null;
+	}
+
+	private List<TermDocumentFreq> intersectPostingsForTerms(List<TermDocumentFreq> myList,	List<TermDocumentFreq> postingsList) {
+		int i=0,j=0;
+		List<TermDocumentFreq> result = new ArrayList<TermDocumentFreq>();
+		for(int value;i<myList.size()-1 && j<postingsList.size()-1;) {
+			value = myList.get(i).getFileId().compareTo(postingsList.get(j).getFileId());
+			if(value==0) {
+				result.add(myList.get(i));
+				i++; j++;
+			}else if(value < 0) {
+				i++;
+			}
+			else {
+				j++;
+			}
+		}
+		return result;
 	}
 }

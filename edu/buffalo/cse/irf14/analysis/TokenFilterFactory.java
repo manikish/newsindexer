@@ -28,7 +28,10 @@ public class TokenFilterFactory {
 	public static TokenFilterFactory getInstance() {
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
 		if(myClass==null) {
-			myClass = new TokenFilterFactory();
+			synchronized (TokenFilterFactory.class) {
+				if(myClass==null)
+					myClass = new TokenFilterFactory();
+			}
 		} 
 		return myClass;
 	}

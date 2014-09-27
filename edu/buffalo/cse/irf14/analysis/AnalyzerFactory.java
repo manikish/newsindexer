@@ -28,7 +28,10 @@ public class AnalyzerFactory {
 	public static AnalyzerFactory getInstance() {
 		//TODO: YOU NEED TO IMPLEMENT THIS METHOD
 		if(myClass==null) {
-			myClass = new AnalyzerFactory();
+			synchronized (AnalyzerFactory.class) {
+				if(myClass==null)
+					myClass = new AnalyzerFactory();
+			}
 		}
 		return myClass;
 	}
@@ -47,22 +50,73 @@ public class AnalyzerFactory {
 	public Analyzer getAnalyzerForField(FieldNames name, TokenStream stream) {
 		//TODO : YOU NEED TO IMPLEMENT THIS METHOD
 		TokenFilter myFilterChain = null;
+		TokenFilterFactory myFilterFactory = TokenFilterFactory.getInstance();
+		TokenFilter tempFilter = null;
 		switch(name) {
+		case CATEGORY: {
+			myFilterChain = myFilterFactory.getFilterByType(TokenFilterType.ACCENT, stream);
+			tempFilter = myFilterChain;
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.SPECIALCHARS, stream));
+			tempFilter = tempFilter.getNextFilter();
+			break;
+		}
+		case AUTHOR:
+		case AUTHORORG: {
+			myFilterChain = myFilterFactory.getFilterByType(TokenFilterType.ACCENT, stream);
+			tempFilter = myFilterChain;
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.SYMBOL, stream));
+			tempFilter = tempFilter.getNextFilter();
+			break;
+		}
 		case CONTENT: {
-				TokenFilterFactory myFilterFactory = TokenFilterFactory.getInstance();
 				myFilterChain = myFilterFactory.getFilterByType(TokenFilterType.STOPWORD, stream);
-				TokenFilter temp = myFilterFactory.getFilterByType(TokenFilterType.STEMMER, stream);
-				temp.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.CAPITALIZATION, stream));
-				myFilterChain.setNextFilter(temp);
-					}
+				tempFilter = myFilterChain;
+				tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.DATE, stream));
+				tempFilter = tempFilter.getNextFilter();
+				tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.NUMERIC, stream));
+				tempFilter = tempFilter.getNextFilter();
+				tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.SYMBOL, stream));
+				tempFilter = tempFilter.getNextFilter();
+				tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.SPECIALCHARS, stream));
+				tempFilter = tempFilter.getNextFilter();
+				tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.ACCENT, stream));
+				tempFilter = tempFilter.getNextFilter();
+				tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.CAPITALIZATION, stream));
+				tempFilter = tempFilter.getNextFilter();
+				break;
+				}
 		case TITLE: {
-			
+			myFilterChain = myFilterFactory.getFilterByType(TokenFilterType.ACCENT, stream);
+			tempFilter = myFilterChain;
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.STEMMER, stream));
+			tempFilter = tempFilter.getNextFilter();
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.SYMBOL, stream));
+			tempFilter = tempFilter.getNextFilter();
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.SPECIALCHARS, stream));
+			tempFilter = tempFilter.getNextFilter();
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.CAPITALIZATION, stream));
+			tempFilter = tempFilter.getNextFilter();
+			break;
 			}
 		case PLACE: {
-			
+			myFilterChain = myFilterFactory.getFilterByType(TokenFilterType.SYMBOL, stream);
+			tempFilter = myFilterChain;
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.SPECIALCHARS, stream));
+			tempFilter = tempFilter.getNextFilter();
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.ACCENT, stream));
+			tempFilter = tempFilter.getNextFilter();
+			break;
 			}
 		case NEWSDATE: {
-			
+			myFilterChain = myFilterFactory.getFilterByType(TokenFilterType.ACCENT, stream);
+			tempFilter = myFilterChain;			
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.DATE, stream));
+			tempFilter = tempFilter.getNextFilter();			
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.SYMBOL, stream));
+			tempFilter = tempFilter.getNextFilter();
+			tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.SPECIALCHARS, stream));
+			tempFilter = tempFilter.getNextFilter();
+			break;
 			}
 		}
 		return myFilterChain;
