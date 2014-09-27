@@ -39,8 +39,8 @@ public class DateTokenFilter extends TokenFilter {
 	public void perform() {
 		// TODO Auto-generated method stub
 		myStream.reset();
-		try {
-			while(increment()) {
+		
+			while(myStream.hasNext()) {
 				Token myToken = myStream.next();
 				String myTokenText = myToken.getTermText();
 				
@@ -149,10 +149,7 @@ public class DateTokenFilter extends TokenFilter {
 				
 				}
 			 
-		} catch (TokenizerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 	
 	public void handleMonthPatterns(String month)
@@ -163,10 +160,10 @@ public class DateTokenFilter extends TokenFilter {
 		  ParsePosition pos = new ParsePosition(0);
 		  
 		Token nextToken = myStream.next();
-		String tokenText = nextToken.getTermText();
+		String tokenText = nextToken==null?null:nextToken.getTermText();
 		
 		
-		 Number number = formatter.parse(tokenText, pos);
+		 Number number = tokenText!=null?formatter.parse(tokenText, pos):null;
 		if(number!= null)
 		{
 			if(tokenText.length() == pos.getIndex())

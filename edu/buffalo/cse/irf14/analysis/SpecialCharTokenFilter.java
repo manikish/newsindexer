@@ -28,8 +28,8 @@ public class SpecialCharTokenFilter extends TokenFilter {
 	
 	public void perform() {
 		myStream.reset();
-		try {
-			while(increment()) {
+		
+			while(myStream.hasNext()) {
 				Token myToken = myStream.next();
 				String REGEX = "[^\\w[-_]\\s\\@\\.\\-]";
 	            Pattern pattern = Pattern.compile(REGEX);
@@ -68,10 +68,7 @@ public class SpecialCharTokenFilter extends TokenFilter {
 	            	}
 	            }
 			}
-		} catch (TokenizerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		
 	}
 }

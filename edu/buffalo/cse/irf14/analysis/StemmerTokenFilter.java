@@ -37,9 +37,7 @@ public class StemmerTokenFilter extends TokenFilter {
 		// TODO Auto-generated method stub
 		myStream.reset();
 		
-		
-		try {
-			while (increment()) {
+			while (myStream.hasNext()) {
 				Token myToken = myStream.next();
 				char c = myToken.getTermText().charAt(0);
 				if((c>=65&&c<=90)||c>=97&&c<=122) {
@@ -49,11 +47,6 @@ public class StemmerTokenFilter extends TokenFilter {
 					myToken.setTermText(toString());
 				}
 			}
-		} catch (TokenizerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		
 	}
 	/**

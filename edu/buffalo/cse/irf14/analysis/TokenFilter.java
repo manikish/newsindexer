@@ -14,6 +14,7 @@ package edu.buffalo.cse.irf14.analysis;
 	
 public abstract class TokenFilter implements Analyzer {
 	private TokenStream myStream;
+	private TokenFilter next;
 	/**
 	 * Default constructor, creates an instance over the given
 	 * TokenStream
@@ -31,9 +32,14 @@ public abstract class TokenFilter implements Analyzer {
 	@Override
 	public boolean increment() throws TokenizerException {
 		// TODO Auto-generated method stub
-		if(myStream!=null && myStream.hasNext()) {
-			return true;
+		next = this;
+		while(next!=null) {
+			
+				next.perform();
+				next = next.getNextFilter();
+			
 		}
+		
 		return false;
 	}
 	

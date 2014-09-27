@@ -96,6 +96,7 @@ public class IndexWriter {
 	
 	public Integer write(HashMap<String, Integer> dictionary,HashMap<Integer, List<TermDocumentFreq>> index, Integer count) {
 		// TODO Auto-generated method stub
+		myStream.reset();
         while(myStream.hasNext())
         {
         	Token token = myStream.next();

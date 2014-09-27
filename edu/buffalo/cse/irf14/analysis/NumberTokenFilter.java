@@ -33,8 +33,8 @@ public class NumberTokenFilter extends TokenFilter {
 		// TODO Auto-generated method stub
 		myStream = getStream();
 		myStream.reset();
-		try {
-			while(increment()) {
+		
+			while(myStream.hasNext()) {
 				myToken = myStream.next();
 				char text = myToken.getTermBuffer()[0];
 				/*if(text.matches("[0-9]+[^0-9a-zA-Z]*[0-9]*[^0-9a-zA-Z]*[0-9]*")) {
@@ -43,10 +43,7 @@ public class NumberTokenFilter extends TokenFilter {
 				if(text>=48&&text<=57)
 					trimText(myToken.getTermText());
 			}
-		} catch (TokenizerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 
 	private void trimText(String dateTimeString) {

@@ -39,18 +39,15 @@ public class StopwordTokenFilter extends TokenFilter {
 	//This method removes the stopwords from the token stream
 	public void perform() {
 		myStream.reset();
-		try {
-			while(increment()) {
+		
+			while(myStream.hasNext()) {
 				Token myToken = myStream.next();
 				for(int i=0; i<STOPWORD_LIST.length;i++)
 					if(STOPWORD_LIST[i].equalsIgnoreCase(myToken.getTermText())) {
 						myStream.remove();
 					}
 			}
-		} catch (TokenizerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 
 }
