@@ -91,8 +91,8 @@ public class Token {
 	 * @param tokens The token array to be merged
 	 */
 	protected void merge(Token...tokens) {
-		//TODO : YOU MUST IMPLEMENT THIS METHOD
-		if(tokens.length>0) {
+		//TODO : YOU MUST IMPLEMENT THIS METHOD	
+		if(tokens!=null && tokens.length>0) {
 			int length = 0;
 			StringBuffer newTermText = new StringBuffer(this.termText);
 			while(length!=tokens.length) {

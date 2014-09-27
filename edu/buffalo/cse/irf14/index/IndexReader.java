@@ -5,6 +5,7 @@ package edu.buffalo.cse.irf14.index;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,7 +83,14 @@ public class IndexReader {
 	 */
 	public int getTotalValueTerms() {
 		//TODO: YOU MUST IMPLEMENT THIS
-		return dictionary.values().size();
+		Set<String> fileId = new HashSet<String>();
+		for (int i=0; i<index.size(); i++) {
+			List<TermDocumentFreq>l=index.get(i+1);
+			for(TermDocumentFreq t:l){
+				fileId.add(t.getFileId());
+			}
+		}
+		return fileId.size();
 	}
 	
 	/**
@@ -115,6 +123,10 @@ public class IndexReader {
 	 */
 	public List<String> getTopK(int k) {
 		//TODO YOU MUST IMPLEMENT THIS
+		if(k<=0)
+		{
+			return null;
+		}
 		TreeMap<Integer, List<String>> treeMap = new TreeMap<Integer, List<String>>();
 		Set<String> keySet = dictionary.keySet();
 		for(String key: keySet) {

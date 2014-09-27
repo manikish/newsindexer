@@ -13,6 +13,8 @@ public class DateTokenFilter extends TokenFilter {
 
 	private static final String[] months = {"January","February","March","April","May","June","July"
 		,"August","September","October","November","December"};
+	private static final String[] monthsInShort = {"Jan","Feb","Mar","Apr","May","Jun","Jul"
+		,"Aug","Sep","Oct","Nov","Dec"};
 
 	private static final String[] OTHER_PATTERNS = {"BC","BC.","AD","AD.","AM","AM.","PM","PM."};
 	
@@ -32,7 +34,6 @@ public class DateTokenFilter extends TokenFilter {
 		// TODO Auto-generated constructor stub
 		super(stream);
 		myStream = stream;
-		perform();
 	}
 		
 	@Override
@@ -52,6 +53,19 @@ public class DateTokenFilter extends TokenFilter {
 				if(myTokenText.length() > 3 && myTokenText.length() < 10)
 				{
 					for (int i = 0; i < months.length; i++) {
+	                    if (myTokenText.equalsIgnoreCase(months[i])) {
+	                    	Integer m = i+1;
+							month = m.toString();
+	                    	if(m < 10)
+	                        month = "0"+month;
+							isMonthMatching = true;
+							break;
+						}
+					}
+				}
+				if(!isMonthMatching)
+				{
+					for (int i = 0; i < monthsInShort.length; i++) {
 	                    if (myTokenText.equalsIgnoreCase(months[i])) {
 	                    	Integer m = i+1;
 							month = m.toString();
@@ -149,7 +163,6 @@ public class DateTokenFilter extends TokenFilter {
 				
 				}
 			 
-		
 	}
 	
 	public void handleMonthPatterns(String month)
