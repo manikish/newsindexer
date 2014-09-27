@@ -118,7 +118,7 @@ public class DateTokenFilter extends TokenFilter {
                     {
                     	//code for 2011-14 format
     					String[] strings = myTokenText.split("-");
-    					if(isNumeric(strings[0])&& strings.length == 2)
+    					if(strings.length == 2 && strings[0].length()!=0 && isNumeric(strings[0]) && isNumeric(strings[1]))
     					{
     						try
     						{
@@ -167,73 +167,76 @@ public class DateTokenFilter extends TokenFilter {
 		
 		
 		 Number number = formatter.parse(tokenText, pos);
-		
-        if(tokenText.length() == pos.getIndex())
-        {
-        	myStream.previous();
-        	myStream.previous();
-        	Token monthPreviousToken = myStream.previous();
-        	pos.setIndex(0);
-        	Number expectedDay = null;
-        	if(monthPreviousToken!=null)
-        	expectedDay = formatter.parse(monthPreviousToken.getTermText(),pos);
-        	if(expectedDay == null)
-        	{
-        		year = "1900";
-        		day  = getFormattedDay(number); 
-        		myStream.next();
-        		myStream.remove();
-        		myStream.next();  
-        		myStream.remove();
-           	}
-        	else
-        	{
-        		year = getFormattedYear(number);
-        		day  = getFormattedDay(expectedDay);
-        		myStream.remove();
-            	myStream.next();
-            	myStream.remove();
-            	myStream.next();
-            	myStream.remove();
-        	}
-        	
-        }
-        else
-        {
-        	day = getFormattedDay(number);
-        	Token predictedYearToken = myStream.next();
-        	String predictedYearTokenText = predictedYearToken.getTermText();
-            pos.setIndex(0);
-        	Number expectedYear = formatter.parse(predictedYearToken.getTermText(),pos);
-            if(expectedYear != null)
-            {
-            	year = getFormattedYear(expectedYear);
-                int lengthDiff = predictedYearTokenText.length() - pos.getIndex();
-            	if(lengthDiff != 0)
-            	{
-            		suffix = predictedYearTokenText.substring(pos.getIndex(), predictedYearTokenText.length());
-            	}
-               	myStream.remove();
-            	myStream.previous();
-            	myStream.remove();
-            	myStream.previous();
-            	myStream.remove();
-            }
-            else
-            {
-            	year = "1900";
-            	myStream.previous();
-            	myStream.remove();
-            	myStream.previous();
-            	myStream.remove();
-            }
-            
-        }
+		if(number!= null)
+		{
+			if(tokenText.length() == pos.getIndex())
+	        {
+	        	myStream.previous();
+	        	myStream.previous();
+	        	Token monthPreviousToken = myStream.previous();
+	        	pos.setIndex(0);
+	        	Number expectedDay = null;
+	        	if(monthPreviousToken!=null)
+	        	expectedDay = formatter.parse(monthPreviousToken.getTermText(),pos);
+	        	if(expectedDay == null)
+	        	{
+	        		year = "1900";
+	        		day  = getFormattedDay(number); 
+	        		myStream.next();
+	        		myStream.remove();
+	        		myStream.next();  
+	        		myStream.remove();
+	           	}
+	        	else
+	        	{
+	        		year = getFormattedYear(number);
+	        		day  = getFormattedDay(expectedDay);
+	        		myStream.remove();
+	            	myStream.next();
+	            	myStream.remove();
+	            	myStream.next();
+	            	myStream.remove();
+	        	}
+	        	
+	        }
+	        else
+	        {
+	        	day = getFormattedDay(number);
+	        	Token predictedYearToken = myStream.next();
+	        	String predictedYearTokenText = predictedYearToken.getTermText();
+	            pos.setIndex(0);
+	        	Number expectedYear = formatter.parse(predictedYearToken.getTermText(),pos);
+	            if(expectedYear != null)
+	            {
+	            	year = getFormattedYear(expectedYear);
+	                int lengthDiff = predictedYearTokenText.length() - pos.getIndex();
+	            	if(lengthDiff != 0)
+	            	{
+	            		suffix = predictedYearTokenText.substring(pos.getIndex(), predictedYearTokenText.length());
+	            	}
+	               	myStream.remove();
+	            	myStream.previous();
+	            	myStream.remove();
+	            	myStream.previous();
+	            	myStream.remove();
+	            }
+	            else
+	            {
+	            	year = "1900";
+	            	myStream.previous();
+	            	myStream.remove();
+	            	myStream.previous();
+	            	myStream.remove();
+	            }
+	            
+	        }
+	        
+	        String dateString = year+month+day+suffix;
+	        Token insertToken = new Token();
+	        insertToken.setTermText(dateString);
+	        myStream.insert(myStream.getNextIndex(), insertToken);
+		}
         
-        String dateString = year+month+day+suffix;
-        Token insertToken = new Token();
-        insertToken.setTermText(dateString);
-        myStream.insert(myStream.getNextIndex(), insertToken);
 	}
 	
 	public void handleMiscAMPMTimeFormats(String myTokenText)

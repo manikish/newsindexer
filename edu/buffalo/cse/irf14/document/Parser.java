@@ -58,7 +58,7 @@ public class Parser {
 			myDocument.setField(FieldNames.CATEGORY, myCategory.trim());
 			
 			//Added for testing
-//			System.out.println("File: "+myCategory.trim()+"\\"+myFileId.trim());
+			System.out.println("File: "+myCategory.trim()+"\\"+myFileId.trim());
 			
 			 //read each line and populate Title and other fields
 			Scanner myScanner = new Scanner(new File(filename));
@@ -105,7 +105,6 @@ public class Parser {
 			ParserException p = new ParserException(n.getMessage());
 			throw p;
 		}
-		printMap(myDocument);    
 		return myDocument;
 	}
 	
@@ -119,29 +118,7 @@ public class Parser {
 		title = new StringBuffer();
 	}
 
-	//redundant method- remove this after use
-	private static void printMap(Document aDocument) {
-		try {
-			if(writer==null) {
-				writer = new FileWriter("Result");
-			}
-			writer.append("Category and File ID: " + aDocument.getField(FieldNames.CATEGORY)[0]+"\\"+aDocument.getField(FieldNames.FILEID)[0]);
-			writer.append(" Title: " + aDocument.getField(FieldNames.TITLE)[0]);
-			writer.append(" Author: " + (aDocument.getField(FieldNames.AUTHOR)==null?null:aDocument.getField(FieldNames.AUTHOR)[0]));
-			writer.append(" AuthorORG: " + (aDocument.getField(FieldNames.AUTHORORG)==null?null:aDocument.getField(FieldNames.AUTHORORG)[0]));
-			writer.append(" Place: " + (aDocument.getField(FieldNames.PLACE)==null?null:aDocument.getField(FieldNames.PLACE)[0]));
-			writer.append(" Date: " + (aDocument.getField(FieldNames.NEWSDATE)==null?null:aDocument.getField(FieldNames.NEWSDATE)[0]));
-			writer.append(" Content: " + (aDocument.getField(FieldNames.CONTENT)==null?null:aDocument.getField(FieldNames.CONTENT)[0]));
-			writer.append("\n");
-			writer.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	//end method
-
+	
 	private static void populateFields(Document aDocument, String aText) {
 		String myText = new String();
 		String[] myFields = {""};
