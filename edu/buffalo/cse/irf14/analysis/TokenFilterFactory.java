@@ -70,6 +70,9 @@ public class TokenFilterFactory {
 		case ACCENT: 
 				myFilter = new AccentTokenFilter(stream);
 				break;
+		case SPECIALCHARS:
+			    myFilter = new SpecialCharTokenFilter(stream);
+			    break;
 		}
 		return myFilter;
 	}
