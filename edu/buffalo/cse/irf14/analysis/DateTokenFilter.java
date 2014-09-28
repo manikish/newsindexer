@@ -155,7 +155,7 @@ public class DateTokenFilter extends TokenFilter {
     						}
     						catch (NumberFormatException e)
     						{
-    							throw e;
+    							
     						}
     						
     					}
@@ -213,6 +213,10 @@ public class DateTokenFilter extends TokenFilter {
 	        {
 	        	day = getFormattedDay(number);
 	        	Token predictedYearToken = myStream.next();
+	        	if(predictedYearToken == null)
+	        	{
+	        		return;
+	        	}
 	        	String predictedYearTokenText = predictedYearToken.getTermText();
 	            pos.setIndex(0);
 	        	Number expectedYear = formatter.parse(predictedYearToken.getTermText(),pos);
@@ -436,6 +440,11 @@ public class DateTokenFilter extends TokenFilter {
              Token insertToken = new Token();
              insertToken.setTermText(dateString);
 			 myStream.insert(myStream.getNextIndex(), insertToken);
+        }
+        else
+        {
+        	myStream.next();
+        	myStream.next();
         }
 
 	}

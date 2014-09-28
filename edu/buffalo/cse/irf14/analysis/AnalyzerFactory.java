@@ -71,8 +71,8 @@ public class AnalyzerFactory {
 		case CONTENT: {
 				myFilterChain = myFilterFactory.getFilterByType(TokenFilterType.STOPWORD, stream);
 				tempFilter = myFilterChain;
-				/*tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.DATE, stream));
-				tempFilter = tempFilter.getNextFilter();*/
+				tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.DATE, stream));
+				tempFilter = tempFilter.getNextFilter();
 				tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.NUMERIC, stream));
 				tempFilter = tempFilter.getNextFilter();
 				tempFilter.setNextFilter(myFilterFactory.getFilterByType(TokenFilterType.SYMBOL, stream));
