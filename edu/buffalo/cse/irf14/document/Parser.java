@@ -89,16 +89,19 @@ public class Parser {
 			restoreDefaults();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			
+			ParserException p = new ParserException(e.getMessage());
+			throw p;
 		} 
 		catch (ArrayIndexOutOfBoundsException a)
 		{
-			
-			
+			ParserException p = new ParserException(a.getMessage());
+
+			throw p;
 		}
 		catch (NullPointerException n)
 		{
-			
+			ParserException p = new ParserException(n.getMessage());
+            throw p;
 		}
 		return myDocument;
 	}
