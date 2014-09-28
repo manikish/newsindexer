@@ -133,7 +133,7 @@ public class TokenStream implements Iterator<Token>{
 		}
 		catch(NoSuchElementException e)
 		{
-			throw e;
+			return null;
 		}
 	}
 	

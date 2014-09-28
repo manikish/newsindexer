@@ -90,7 +90,6 @@ public class IndexWriter {
 			}			
 		} catch (TokenizerException e) {
 			// TODO Auto-generated catch block
-			throw new IndexerException();
 		}
 	}
 	
