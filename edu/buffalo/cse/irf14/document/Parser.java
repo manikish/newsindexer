@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 
 
@@ -33,10 +34,7 @@ public class Parser {
 	private static Boolean AUTHOR_TAG_SET = Boolean.FALSE;
 	private static Boolean isPlaceAndDateGiven = Boolean.FALSE;
 
-	//end mod
 	
-	//Added only for testing the write to result file//delete this after testing
-	private static FileWriter writer;
 	
 	/**
 	 * Static method to parse the given file into the Document object
@@ -49,7 +47,9 @@ public class Parser {
 		Document myDocument = new Document();
 	
 		try {
-			String[] myFields = filename.split("\\"+File.separator);
+			String pattern = Pattern.quote(System.getProperty("file.separator"));
+
+			String[] myFields = filename.split(pattern);
 			//set FileId in Document obj
 			String myFileId = myFields[myFields.length-1];
 			myDocument.setField(FieldNames.FILEID, myFileId.trim());
@@ -68,8 +68,6 @@ public class Parser {
 				if((myLine = myScanner.nextLine()).trim().length()!=0) {
 					 if (!isTitlePopulated) {
 							title = title.append(myLine);
-							
-							
 					 }
 					 else
 					 {
