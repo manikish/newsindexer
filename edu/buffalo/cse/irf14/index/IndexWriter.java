@@ -3,9 +3,14 @@
  */
 package edu.buffalo.cse.irf14.index;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.buffalo.cse.irf14.analysis.AnalyzerFactory;
 import edu.buffalo.cse.irf14.analysis.Token;
@@ -25,17 +30,17 @@ public class IndexWriter {
 	public static String indexDir;
 	public static final AnalyzerFactory myAnalyzerFactory = AnalyzerFactory.getInstance();
 	
-	 public static HashMap<String, Integer> termDictionary = new HashMap<String, Integer>();
-	 public static HashMap<Integer, List<TermDocumentFreq>> termIndex = new HashMap<Integer, List<TermDocumentFreq>>();
+	 public HashMap<String, Integer> termDictionary = new HashMap<String, Integer>();
+	 public static HashMap<Integer, HashMap<String, Integer>> termIndex = new HashMap<Integer, HashMap<String, Integer>>();
 	 
 	 public static HashMap<String, Integer> authorDictionary = new HashMap<String, Integer>();
-	 public static HashMap<Integer, List<TermDocumentFreq>> authorIndex = new HashMap<Integer, List<TermDocumentFreq>>();
+	 public static HashMap<Integer, HashMap<String, Integer>> authorIndex = new HashMap<Integer, HashMap<String, Integer>>();
 	 
 	 public static HashMap<String, Integer> placeDictionary = new HashMap<String, Integer>();
-	 public static HashMap<Integer, List<TermDocumentFreq>> placeIndex = new HashMap<Integer, List<TermDocumentFreq>>();
+	 public static HashMap<Integer, HashMap<String, Integer>> placeIndex = new HashMap<Integer, HashMap<String, Integer>>();
 	 
 	 public static HashMap<String, Integer> categoryDictionary = new HashMap<String, Integer>();
-	 public static HashMap<Integer, List<TermDocumentFreq>> categoryIndex = new HashMap<Integer, List<TermDocumentFreq>>();
+	 public static HashMap<Integer, HashMap<String, Integer>> categoryIndex = new HashMap<Integer, HashMap<String, Integer>>();
 	 
 	 private static Integer termCount = 0, authorCount = 0, placeCount = 0, categoryCount = 0;
 	 
@@ -93,7 +98,7 @@ public class IndexWriter {
 		}
 	}
 	
-	public Integer write(HashMap<String, Integer> dictionary,HashMap<Integer, List<TermDocumentFreq>> index, Integer count) {
+	public Integer write(HashMap<String, Integer> dictionary,HashMap<Integer, HashMap<String, Integer>> index, Integer count) {
 		// TODO Auto-generated method stub
 		myStream.reset();
         while(myStream.hasNext())
@@ -101,34 +106,24 @@ public class IndexWriter {
         	Token token = myStream.next();
             String tokenText = token.getTermText();
             Integer ind = dictionary.get(tokenText);
-			List<TermDocumentFreq> docsList = new ArrayList<TermDocumentFreq>(){
-        		@Override
-        		public boolean contains(Object o) {
-        			// TODO Auto-generated method stub
-        			TermDocumentFreq term = null;        			
-        			for(int i=0;i<this.size();i++) {
-        				if((term=this.get(i)).getFileId()==o) {
-        					term.setFrequency(term.getFrequency()+1);
-        					return true;        					
-        				}
-        			}
-        			return false;
-        		}
-        	};
+            HashMap<String, Integer> docsList = new HashMap<String, Integer>();
         	if(ind==null)
         	{
         		count++;
         		dictionary.put(tokenText,count);
-            	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
-            	docsList.add(termDocItem);
-            	index.put(count, docsList);
+            	HashMap<String, Integer> freq = new HashMap<String, Integer>();
+            	freq.put(fileId, 1);
+            	index.put(count, freq);
         	}else
         	{
                 docsList = index.get(ind);
-                if(!docsList.contains(fileId)) {
-                	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
-                	docsList.add(termDocItem);
-                	index.put(ind, docsList);
+                if(!docsList.containsKey(fileId)) {
+                	HashMap<String, Integer> freq = new HashMap<String, Integer>();
+                	freq.put(tokenText, 1);
+                	index.put(count, freq);
+                }
+                else {
+                	docsList.put(fileId, docsList.get(fileId)+1);
                 }
         	}        	        	
         }
@@ -142,7 +137,37 @@ public class IndexWriter {
 	 * @throws IndexerException : In case any error occurs
 	 */
 	public void close() throws IndexerException {
-		//TODO
+		ObjectOutputStream oo;
+		try {
+			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"termDictionary"));
+			oo.writeObject(termDictionary);
+			oo.close();
+			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"termIndex"));
+			oo.writeObject(termIndex);
+			oo.close();
+			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"authorIndex"));
+			oo.writeObject(authorIndex);
+			oo.close();
+			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"authorDictionary"));
+			oo.writeObject(authorDictionary);
+			oo.close();
+			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"placeIndex"));
+			oo.writeObject(placeIndex);
+			oo.close();
+			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"placeDictionary"));
+			oo.writeObject(placeDictionary);
+			oo.close();
+			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"categoryDictionary"));
+			oo.writeObject(categoryDictionary);
+			oo.close();
+			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"categoryIndex"));
+			oo.writeObject(categoryIndex);
+			oo.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	public String getIndexDir() {
