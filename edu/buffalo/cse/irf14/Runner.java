@@ -4,7 +4,6 @@
 package edu.buffalo.cse.irf14;
 
 import java.io.File;
-import java.io.IOException;
 
 import edu.buffalo.cse.irf14.document.Document;
 import edu.buffalo.cse.irf14.document.Parser;
@@ -27,9 +26,8 @@ public class Runner {
 
 	/**
 	 * @param args
-	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		String ipDir = args[0];
 		String indexDir = args[1];
 		//more? idk!
