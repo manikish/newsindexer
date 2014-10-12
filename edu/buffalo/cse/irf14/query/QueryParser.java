@@ -3,11 +3,22 @@
  */
 package edu.buffalo.cse.irf14.query;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
 /**
  * @author nikhillo
  * Static parser that converts raw text to Query objects
  */
 public class QueryParser {
+	
+	public static String defaultOperator = "OR";
+	public static int count = 0;
+	public static String defaultIndex = "Term:";
+	public static String OPERANDS = "AND|OR|NOT";
+	public static String COLON = ":";
+	public static String QUOTES = "\"";
 	/**
 	 * MEthod to parse the given user query into a Query object
 	 * @param userQuery : The query to parse
@@ -16,6 +27,78 @@ public class QueryParser {
 	 */
 	public static Query parse(String userQuery, String defaultOperator) {
 		//TODO: YOU MUST IMPLEMENT THIS METHOD
-		return null;
+		Query myQuery = new Query();
+		Stack<String> operatorStack = new Stack<String>();
+		List<Object> queryStringList = new ArrayList<Object>();
+		int queryStringIndex =-1;
+		String quotedQueryTerm = new String();
+		boolean quotes=false;
+		if(!defaultOperator.isEmpty() && !defaultOperator.equals(QueryParser.defaultOperator)) {
+			QueryParser.defaultOperator = defaultOperator;
+		}
+		for(int i=0; i<userQuery.length();i++) {
+			if(userQuery.charAt(i)=='(') {
+				if(queryStringIndex!=-1 && userQuery.substring(queryStringIndex, i).contains(COLON)) {
+					defaultIndex = userQuery.substring(queryStringIndex, i);
+				}
+				count++;
+				continue;
+			}else if(queryStringIndex==-1 && userQuery.charAt(i)!=' '){
+				queryStringIndex = i;
+				continue;
+			}			
+			if(userQuery.indexOf(i)==' ') {
+				String myString =userQuery.substring(queryStringIndex, i);
+				if(myString.contains(QUOTES))
+					quotes = true;
+				if(!quotes) {
+					if(OPERANDS.contains(myString)) {
+						operatorStack.push(myString);
+					}
+					else if(myString.contains(COLON)){
+						queryStringList.add(myString);
+					}
+					else {
+						queryStringList.add(defaultIndex+myString);
+						defaultIndex = "Term:";
+					}
+				}
+				else {
+					if(myString.contains(QUOTES)) {
+						quotedQueryTerm += myString;
+						queryStringList.add(quotedQueryTerm);
+						quotes = false;
+					}else {
+						quotedQueryTerm += myString;
+					}
+				}
+				
+				queryStringIndex=0;
+				continue;
+			}
+			else if(userQuery.indexOf(i)==')') {
+				count--;
+				queryStringList.add(constructNode(operatorStack.pop(), 
+						(String)queryStringList.remove(queryStringList.size()-1), 
+						(String)queryStringList.remove(queryStringList.size()-1)));
+				continue;
+			}
+		}
+		while(!operatorStack.isEmpty() && !queryStringList.isEmpty()){
+			queryStringList.add(constructNode(operatorStack.pop(), 
+					(String)queryStringList.remove(queryStringList.size()-1), 
+					(String)queryStringList.remove(queryStringList.size()-1)));
+		}
+		myQuery.setQueryTree((Query.Tree)queryStringList.get(0));
+		return myQuery;
+	}
+	private static Query.Tree constructNode(String operator, String operand1, String operand2) {
+		// TODO Auto-generated method stub
+		Query.Tree node = new Query.Tree();
+		Query.Tree leftLeafNode = new Query.Tree(operand1);
+		Query.Tree rightLeafNode = new Query.Tree(operand2);
+		node.setLeftLeaf(leftLeafNode);
+		node.setRightLeaf(rightLeafNode);
+		return node;
 	}
 }
