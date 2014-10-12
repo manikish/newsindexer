@@ -2,8 +2,16 @@ package edu.buffalo.cse.irf14;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import edu.buffalo.cse.irf14.index.IndexReader;
+import edu.buffalo.cse.irf14.index.IndexType;
+import edu.buffalo.cse.irf14.index.TermDocumentFreq;
+import edu.buffalo.cse.irf14.query.Query;
+import edu.buffalo.cse.irf14.query.Query.Tree;
+import edu.buffalo.cse.irf14.query.QueryParser;
 
 /**
  * Main class to run the searcher.
@@ -12,6 +20,10 @@ import java.util.Map;
  *
  */
 public class SearchRunner {
+	private String indexDir, corpusDir;
+	private char mode;
+	private PrintStream stream;
+	
 	public enum ScoringModel {TFIDF, OKAPI};
 	
 	/**
@@ -24,6 +36,10 @@ public class SearchRunner {
 	public SearchRunner(String indexDir, String corpusDir, 
 			char mode, PrintStream stream) {
 		//TODO: IMPLEMENT THIS METHOD
+		this.corpusDir = corpusDir;
+		this.indexDir = indexDir;
+		this.mode = mode;
+		this.stream = stream;
 	}
 	
 	/**
@@ -33,8 +49,49 @@ public class SearchRunner {
 	 */
 	public void query(String userQuery, ScoringModel model) {
 		//TODO: IMPLEMENT THIS METHOD
+		Query query = QueryParser.parse(userQuery, "OR");
+		getPostingsList(query.getQueryTree());
 	}
 	
+	private List<TermDocumentFreq> getPostingsList(Tree queryTree) {
+		// TODO Auto-generated method stub
+		Tree node = queryTree;
+		List<TermDocumentFreq> resultPostings = new ArrayList<TermDocumentFreq>();
+		while(node!=null) {
+			List<TermDocumentFreq> leftPostings = getPostingsList(node.getLeftLeaf());
+			List<TermDocumentFreq> rightPostings = getPostingsList(node.getRightLeaf());
+			String nodeValue = node.getNodeValue();
+			if(QueryParser.OPERANDS.contains(nodeValue)) {
+				if("AND".equals(nodeValue)) {
+					//perform AND operation on leftPostings and rightPostings
+					
+				}else if("OR".equals(nodeValue)) {
+					//perform OR operation on leftPostings and rightPostings
+					
+					
+				}else {
+					//perform NOT operation on leftPostings and rightPostings
+					
+				}
+			} else {
+				String[] queryIndexValues = nodeValue.contains(":")?nodeValue.split(":"): new String[] {nodeValue};
+				
+				if(queryIndexValues.length==1) {
+					IndexReader reader = new IndexReader(indexDir, IndexType.TERM);
+					Map<String, Integer> postings = reader.query(queryIndexValues[0]);
+					//convert MAP<String,Integer> to List<TermDocumentFreq> and return it.
+					for(String s: postings.keySet()) {
+						TermDocumentFreq term = new TermDocumentFreq(s, postings.get(s));
+						resultPostings.add(term);
+					}
+				}else {
+					IndexReader
+				}
+			}
+			return resultPostings;
+		}
+	}
+
 	/**
 	 * Method to execute queries in E mode
 	 * @param queryFile : The file from which queries are to be read and executed
