@@ -104,23 +104,63 @@ public class SearchRunner {
 					//perform OR operation on leftPostings and rightPostings
 					while(leftIterator.hasNext() || rightIterator.hasNext())
 					{
-						leftTermDocFreq = leftIterator.next();
-						rightTermDocFreq = rightIterator.next();
-
+						if(shouldLeftPointerMove)
+						{
+							leftTermDocFreq = leftIterator.next();
+							shouldLeftPointerMove = false;
+						}
+						if(shouldrightPointerMove)
+						{
+							rightTermDocFreq = rightIterator.next();
+							shouldrightPointerMove = false;
+						}
 						Integer leftFileId =  Integer.parseInt(leftTermDocFreq.getFileId());
 						Integer rightFileId =  Integer.parseInt(rightTermDocFreq.getFileId());
-						
 						if(leftFileId == rightFileId)
 						{
 							resultPostings.add(leftTermDocFreq);
-						}else{
+							shouldLeftPointerMove = true;
+							shouldrightPointerMove = true;
+							continue;
+						}else if(leftFileId < rightFileId){
 							resultPostings.add(leftTermDocFreq);
+							shouldLeftPointerMove = true;
+							continue;
+						}else{
 							resultPostings.add(rightTermDocFreq);
+							shouldrightPointerMove = true;
 						}
 					}
 				}else {
 					//perform NOT operation on leftPostings and rightPostings
-					
+					while(leftIterator.hasNext() || rightIterator.hasNext())
+					{
+						if(shouldLeftPointerMove)
+						{
+							leftTermDocFreq = leftIterator.next();
+							shouldLeftPointerMove = false;
+						}
+						if(shouldrightPointerMove)
+						{
+							rightTermDocFreq = rightIterator.next();
+							shouldrightPointerMove = false;
+						}
+						Integer leftFileId =  Integer.parseInt(leftTermDocFreq.getFileId());
+						Integer rightFileId =  Integer.parseInt(rightTermDocFreq.getFileId());
+						if(leftFileId == rightFileId)
+						{
+							shouldLeftPointerMove = true;
+							shouldrightPointerMove = true;
+							continue;
+						}else if(leftFileId < rightFileId){
+							resultPostings.add(leftTermDocFreq);
+							shouldLeftPointerMove = true;
+							continue;
+						}else{
+							shouldrightPointerMove = true;
+						}
+					}
+
 				}
 			} else {
 				String[] queryIndexValues = nodeValue.contains(":")?nodeValue.split(":"): new String[] {nodeValue};
