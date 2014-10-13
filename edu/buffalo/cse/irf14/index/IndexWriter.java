@@ -4,13 +4,13 @@
 package edu.buffalo.cse.irf14.index;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import edu.buffalo.cse.irf14.analysis.AnalyzerFactory;
 import edu.buffalo.cse.irf14.analysis.Token;
@@ -30,17 +30,17 @@ public class IndexWriter {
 	public static String indexDir;
 	public static final AnalyzerFactory myAnalyzerFactory = AnalyzerFactory.getInstance();
 	
-	 public HashMap<String, Integer> termDictionary = new HashMap<String, Integer>();
-	 public static HashMap<Integer, HashMap<String, Integer>> termIndex = new HashMap<Integer, HashMap<String, Integer>>();
+	 private HashMap<String, Integer> termDictionary = new HashMap<String, Integer>();
+	 private HashMap<Integer, List<TermDocumentFreq>> termIndex = new HashMap<Integer, List<TermDocumentFreq>>();
 	 
-	 public static HashMap<String, Integer> authorDictionary = new HashMap<String, Integer>();
-	 public static HashMap<Integer, HashMap<String, Integer>> authorIndex = new HashMap<Integer, HashMap<String, Integer>>();
+	 private HashMap<String, Integer> authorDictionary = new HashMap<String, Integer>();
+	 private HashMap<Integer, List<TermDocumentFreq>> authorIndex = new HashMap<Integer, List<TermDocumentFreq>>();
 	 
-	 public static HashMap<String, Integer> placeDictionary = new HashMap<String, Integer>();
-	 public static HashMap<Integer, HashMap<String, Integer>> placeIndex = new HashMap<Integer, HashMap<String, Integer>>();
+	 private HashMap<String, Integer> placeDictionary = new HashMap<String, Integer>();
+	 private HashMap<Integer, List<TermDocumentFreq>> placeIndex = new HashMap<Integer, List<TermDocumentFreq>>();
 	 
-	 public static HashMap<String, Integer> categoryDictionary = new HashMap<String, Integer>();
-	 public static HashMap<Integer, HashMap<String, Integer>> categoryIndex = new HashMap<Integer, HashMap<String, Integer>>();
+	 private HashMap<String, Integer> categoryDictionary = new HashMap<String, Integer>();
+	 private HashMap<Integer, List<TermDocumentFreq>> categoryIndex = new HashMap<Integer, List<TermDocumentFreq>>();
 	 
 	 private static Integer termCount = 0, authorCount = 0, placeCount = 0, categoryCount = 0;
 	 
@@ -52,7 +52,7 @@ public class IndexWriter {
 	 */
 	public IndexWriter(String indexDir) {
 		//TODO : YOU MUST IMPLEMENT THIS
-		IndexWriter.indexDir = indexDir;
+		this.indexDir = indexDir;
 	}
 	
 	/**
@@ -95,10 +95,11 @@ public class IndexWriter {
 			}			
 		} catch (TokenizerException e) {
 			// TODO Auto-generated catch block
+			throw new IndexerException();
 		}
 	}
 	
-	public Integer write(HashMap<String, Integer> dictionary,HashMap<Integer, HashMap<String, Integer>> index, Integer count) {
+	public Integer write(HashMap<String, Integer> dictionary,HashMap<Integer, List<TermDocumentFreq>> termIndex2, Integer count) {
 		// TODO Auto-generated method stub
 		myStream.reset();
         while(myStream.hasNext())
@@ -106,24 +107,21 @@ public class IndexWriter {
         	Token token = myStream.next();
             String tokenText = token.getTermText();
             Integer ind = dictionary.get(tokenText);
-            HashMap<String, Integer> docsList = new HashMap<String, Integer>();
+			List<TermDocumentFreq> docsList = new CustomArrayList();
         	if(ind==null)
         	{
         		count++;
         		dictionary.put(tokenText,count);
-            	HashMap<String, Integer> freq = new HashMap<String, Integer>();
-            	freq.put(fileId, 1);
-            	index.put(count, freq);
+            	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
+            	docsList.add(termDocItem);
+            	termIndex2.put(count, (ArrayList<TermDocumentFreq>) docsList);
         	}else
         	{
-                docsList = index.get(ind);
-                if(!docsList.containsKey(fileId)) {
-                	HashMap<String, Integer> freq = new HashMap<String, Integer>();
-                	freq.put(tokenText, 1);
-                	index.put(count, freq);
-                }
-                else {
-                	docsList.put(fileId, docsList.get(fileId)+1);
+                docsList = termIndex2.get(ind);
+                if(!docsList.contains(fileId)) {
+                	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
+                	docsList.add(termDocItem);
+                	termIndex2.put(ind, (ArrayList<TermDocumentFreq>) docsList);
                 }
         	}        	        	
         }
@@ -137,37 +135,41 @@ public class IndexWriter {
 	 * @throws IndexerException : In case any error occurs
 	 */
 	public void close() throws IndexerException {
-		ObjectOutputStream oo;
+		
+		//TODO
 		try {
-			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"termDictionary"));
-			oo.writeObject(termDictionary);
-			oo.close();
-			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"termIndex"));
-			oo.writeObject(termIndex);
-			oo.close();
-			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"authorIndex"));
-			oo.writeObject(authorIndex);
-			oo.close();
-			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"authorDictionary"));
-			oo.writeObject(authorDictionary);
-			oo.close();
-			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"placeIndex"));
-			oo.writeObject(placeIndex);
-			oo.close();
-			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"placeDictionary"));
-			oo.writeObject(placeDictionary);
-			oo.close();
-			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"categoryDictionary"));
-			oo.writeObject(categoryDictionary);
-			oo.close();
-			oo = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"categoryIndex"));
-			oo.writeObject(categoryIndex);
-			oo.close();
+			ObjectOutputStream myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"termIndex"));
+			myOOStream.writeObject(termIndex);
+			myOOStream.close();
+			myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"termDictionary"));
+			myOOStream.writeObject(termDictionary);
+			myOOStream.close();
+			myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"authorIndex"));
+			myOOStream.writeObject(authorIndex);
+			myOOStream.close();
+			myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"authorDictionary"));
+			myOOStream.writeObject(authorDictionary);
+			myOOStream.close();
+			myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"categoryIndex"));
+			myOOStream.writeObject(categoryIndex);
+			myOOStream.close();
+			myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"categoryDictionary"));
+			myOOStream.writeObject(categoryDictionary);
+			myOOStream.close();
+			myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"placeIndex"));
+			myOOStream.writeObject(placeIndex);
+			myOOStream.close();
+			myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"placeDictionary"));
+			myOOStream.writeObject(placeDictionary);
+			myOOStream.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+	
 	}
 
 	public String getIndexDir() {

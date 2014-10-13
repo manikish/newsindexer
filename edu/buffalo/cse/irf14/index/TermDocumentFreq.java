@@ -1,6 +1,8 @@
 package edu.buffalo.cse.irf14.index;
 
-public class TermDocumentFreq {
+import java.io.Serializable;
+
+public class TermDocumentFreq implements Serializable {
 	
 	private String fileId;
 	private Integer frequency = new Integer(0);

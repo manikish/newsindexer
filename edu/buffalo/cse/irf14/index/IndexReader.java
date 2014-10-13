@@ -3,6 +3,10 @@
  */
 package edu.buffalo.cse.irf14.index;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,29 +44,47 @@ public class IndexReader {
 		//TODO
 		this.indexType = type;
 		this.indexDir = indexDir;
-		switch (type) {
-		case TERM:
-			dictionary = IndexWriter.termDictionary;
-			index      = IndexWriter.termIndex;
-			names = FieldNames.CONTENT;
-			break;
-		case AUTHOR:
-			dictionary = IndexWriter.authorDictionary;
-			index      = IndexWriter.authorIndex;
-			names = FieldNames.AUTHOR;
-			break;
-		case PLACE:
-			dictionary = IndexWriter.placeDictionary;
-			index      = IndexWriter.placeIndex;
-			names = FieldNames.PLACE;
-			break;
-		case CATEGORY:
-			dictionary = IndexWriter.categoryDictionary;
-			index      = IndexWriter.categoryIndex;
-			names = FieldNames.CATEGORY;
-			break;
-		default:
-			break;
+		ObjectInputStream oistream = null;
+		try {
+			switch (type) {
+			case TERM:
+				oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"termIndex"));
+				index = (HashMap<Integer, List<TermDocumentFreq>>) oistream.readObject();
+				oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"termDictionary"));
+				dictionary = (HashMap<String, Integer>) oistream.readObject();
+				names = FieldNames.CONTENT;
+				break;
+			case AUTHOR:
+				oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"authorIndex"));
+				index = (HashMap<Integer, List<TermDocumentFreq>>) oistream.readObject();
+				oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"authorDictionary"));
+				dictionary = (HashMap<String, Integer>) oistream.readObject();
+				names = FieldNames.AUTHOR;
+				break;
+			case PLACE:
+				oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"placeIndex"));
+				index = (HashMap<Integer, List<TermDocumentFreq>>) oistream.readObject();
+				oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"placeDictionary"));
+				dictionary = (HashMap<String, Integer>) oistream.readObject();
+				names = FieldNames.PLACE;
+				break;
+			case CATEGORY:
+				oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"categoryIndex"));
+				index = (HashMap<Integer, List<TermDocumentFreq>>) oistream.readObject();
+				oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"categoryDictionary"));
+				dictionary = (HashMap<String, Integer>) oistream.readObject();
+				names = FieldNames.CATEGORY;
+				break;
+			default:
+				break;
+			}
+		}
+		catch(IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
