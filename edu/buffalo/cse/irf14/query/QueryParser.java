@@ -31,7 +31,7 @@ public class QueryParser {
 		Stack<String> operatorStack = new Stack<String>();
 		List<Object> queryStringList = new ArrayList<Object>();
 		int queryStringIndex =-1;
-		String quotedQueryTerm = new String();
+		String quotedQueryTerm = null;
 		boolean quotes=false;
 		if(!defaultOperator.isEmpty() && !defaultOperator.equals(QueryParser.defaultOperator)) {
 			QueryParser.defaultOperator = defaultOperator;
@@ -49,7 +49,7 @@ public class QueryParser {
 			}			
 			if(userQuery.indexOf(i)==' ') {
 				String myString =userQuery.substring(queryStringIndex, i);
-				if(myString.contains(QUOTES))
+				if(!quotes && myString.contains(QUOTES))
 					quotes = true;
 				if(!quotes) {
 					if(OPERANDS.contains(myString)) {
@@ -63,20 +63,21 @@ public class QueryParser {
 						defaultIndex = "Term:";
 					}
 				}
-				else {
-					if(myString.contains(QUOTES)) {
-						quotedQueryTerm += myString;
-						queryStringList.add(quotedQueryTerm);
+				else {					
+					if(quotedQueryTerm!=null && myString.contains(QUOTES)) {
+						quotedQueryTerm = quotedQueryTerm+" "+myString;
+						queryStringList.add(quotedQueryTerm.substring(queryStringIndex+1, quotedQueryTerm.length()-1));
 						quotes = false;
+						quotedQueryTerm = null;
 					}else {
-						quotedQueryTerm += myString;
+						quotedQueryTerm = quotedQueryTerm+" "+myString;
 					}
 				}
 				
 				queryStringIndex=0;
 				continue;
 			}
-			else if(userQuery.indexOf(i)==')') {
+			else if(userQuery.charAt(i)==')') {
 				count--;
 				queryStringList.add(constructNode(operatorStack.pop(), 
 						(String)queryStringList.remove(queryStringList.size()-1), 
@@ -99,6 +100,7 @@ public class QueryParser {
 		Query.Tree rightLeafNode = new Query.Tree(operand2);
 		node.setLeftLeaf(leftLeafNode);
 		node.setRightLeaf(rightLeafNode);
+		node.setNodeValue(operator);
 		return node;
 	}
 }
