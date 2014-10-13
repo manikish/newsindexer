@@ -5,6 +5,9 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ListIterator;
+
+import org.hamcrest.core.IsEqual;
 
 import edu.buffalo.cse.irf14.index.IndexReader;
 import edu.buffalo.cse.irf14.index.IndexType;
@@ -62,13 +65,59 @@ public class SearchRunner {
 			List<TermDocumentFreq> rightPostings = getPostingsList(node.getRightLeaf());
 			String nodeValue = node.getNodeValue();
 			if(QueryParser.OPERANDS.contains(nodeValue)) {
+				ListIterator<TermDocumentFreq> leftIterator = leftPostings.listIterator();
+				ListIterator<TermDocumentFreq> rightIterator = rightPostings.listIterator();
+				TermDocumentFreq leftTermDocFreq; 
+				TermDocumentFreq rightTermDocFreq;
+				boolean shouldLeftPointerMove = true;
+				boolean shouldrightPointerMove = true;	
 				if("AND".equals(nodeValue)) {
-					//perform AND operation on leftPostings and rightPostings
-					
+					//perform AND operation on leftPostings and rightPostings					
+					while(leftIterator.hasNext() || rightIterator.hasNext())
+					{
+						if(shouldLeftPointerMove)
+						{
+							leftTermDocFreq = leftIterator.next();
+							shouldLeftPointerMove = false;
+						}
+						if(shouldrightPointerMove)
+						{
+							rightTermDocFreq = rightIterator.next();
+							shouldrightPointerMove = false;
+						}
+						Integer leftFileId =  Integer.parseInt(leftTermDocFreq.getFileId());
+						Integer rightFileId =  Integer.parseInt(rightTermDocFreq.getFileId());
+						if(leftFileId == rightFileId)
+						{
+							resultPostings.add(leftTermDocFreq);
+							shouldLeftPointerMove = true;
+							shouldrightPointerMove = true;
+							continue;
+						}else if(leftFileId < rightFileId){
+							shouldLeftPointerMove = true;
+							continue;
+						}else{
+							shouldrightPointerMove = true;
+						}
+					}
 				}else if("OR".equals(nodeValue)) {
 					//perform OR operation on leftPostings and rightPostings
-					
-					
+					while(leftIterator.hasNext() || rightIterator.hasNext())
+					{
+						leftTermDocFreq = leftIterator.next();
+						rightTermDocFreq = rightIterator.next();
+
+						Integer leftFileId =  Integer.parseInt(leftTermDocFreq.getFileId());
+						Integer rightFileId =  Integer.parseInt(rightTermDocFreq.getFileId());
+						
+						if(leftFileId == rightFileId)
+						{
+							resultPostings.add(leftTermDocFreq);
+						}else{
+							resultPostings.add(leftTermDocFreq);
+							resultPostings.add(rightTermDocFreq);
+						}
+					}
 				}else {
 					//perform NOT operation on leftPostings and rightPostings
 					
