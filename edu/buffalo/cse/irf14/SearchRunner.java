@@ -15,7 +15,7 @@ import edu.buffalo.cse.irf14.index.TermDocumentFreq;
 import edu.buffalo.cse.irf14.query.Query;
 import edu.buffalo.cse.irf14.query.Query.Tree;
 import edu.buffalo.cse.irf14.query.QueryParser;
-
+import edu.buffalo.cse.irf14.DocumentWithTfIdfWeight;
 /**
  * Main class to run the searcher.
  * As before implement all TODO methods unless marked for bonus
@@ -53,26 +53,28 @@ public class SearchRunner {
 	public void query(String userQuery, ScoringModel model) {
 		//TODO: IMPLEMENT THIS METHOD
 		Query query = QueryParser.parse(userQuery, "OR");
-		getPostingsList(query.getQueryTree());
+		List<DocumentWithTfIdfWeight> resultPostings = getPostingsList(query.getQueryTree());
+		
 	}
 	
-	private List<TermDocumentFreq> getPostingsList(Tree queryTree) {
+	private List<DocumentWithTfIdfWeight> getPostingsList(Tree queryTree) {
 		// TODO Auto-generated method stub
 		Tree node = queryTree;
-		List<TermDocumentFreq> resultPostings = new ArrayList<TermDocumentFreq>();
+		List<DocumentWithTfIdfWeight> resultPostings = new ArrayList<DocumentWithTfIdfWeight>();
 		while(node!=null) {
-			List<TermDocumentFreq> leftPostings = getPostingsList(node.getLeftLeaf());
-			List<TermDocumentFreq> rightPostings = getPostingsList(node.getRightLeaf());
+			List<DocumentWithTfIdfWeight> leftPostings = getPostingsList(node.getLeftLeaf());
+			List<DocumentWithTfIdfWeight> rightPostings = getPostingsList(node.getRightLeaf());
 			String nodeValue = node.getNodeValue();
 			if(QueryParser.OPERANDS.contains(nodeValue)) {
-				ListIterator<TermDocumentFreq> leftIterator = leftPostings.listIterator();
-				ListIterator<TermDocumentFreq> rightIterator = rightPostings.listIterator();
-				TermDocumentFreq leftTermDocFreq; 
-				TermDocumentFreq rightTermDocFreq;
+				ListIterator<DocumentWithTfIdfWeight> leftIterator = leftPostings.listIterator();
+				ListIterator<DocumentWithTfIdfWeight> rightIterator = rightPostings.listIterator();
+				DocumentWithTfIdfWeight leftTermDocFreq = new DocumentWithTfIdfWeight(); 
+				DocumentWithTfIdfWeight rightTermDocFreq = new DocumentWithTfIdfWeight();
 				boolean shouldLeftPointerMove = true;
 				boolean shouldrightPointerMove = true;	
+				resultPostings = new ArrayList<DocumentWithTfIdfWeight>();
 				if("AND".equals(nodeValue)) {
-					//perform AND operation on leftPostings and rightPostings					
+					//perform AND operation on leftPostings and rightPostings
 					while(leftIterator.hasNext() || rightIterator.hasNext())
 					{
 						if(shouldLeftPointerMove)
@@ -89,7 +91,8 @@ public class SearchRunner {
 						Integer rightFileId =  Integer.parseInt(rightTermDocFreq.getFileId());
 						if(leftFileId == rightFileId)
 						{
-							resultPostings.add(leftTermDocFreq);
+							DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(leftTermDocFreq.getFileId(),leftTermDocFreq.getTfIdf()+rightTermDocFreq.getTfIdf());
+							resultPostings.add(doc);
 							shouldLeftPointerMove = true;
 							shouldrightPointerMove = true;
 							continue;
@@ -118,16 +121,19 @@ public class SearchRunner {
 						Integer rightFileId =  Integer.parseInt(rightTermDocFreq.getFileId());
 						if(leftFileId == rightFileId)
 						{
-							resultPostings.add(leftTermDocFreq);
+							DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(leftTermDocFreq.getFileId(),leftTermDocFreq.getTfIdf()+rightTermDocFreq.getTfIdf());
+							resultPostings.add(doc);
 							shouldLeftPointerMove = true;
 							shouldrightPointerMove = true;
 							continue;
 						}else if(leftFileId < rightFileId){
-							resultPostings.add(leftTermDocFreq);
+							DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(leftTermDocFreq.getFileId(),leftTermDocFreq.getTfIdf());
+							resultPostings.add(doc);
 							shouldLeftPointerMove = true;
 							continue;
 						}else{
-							resultPostings.add(rightTermDocFreq);
+							DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(rightTermDocFreq.getFileId(),rightTermDocFreq.getTfIdf());
+							resultPostings.add(doc);
 							shouldrightPointerMove = true;
 						}
 					}
@@ -153,7 +159,8 @@ public class SearchRunner {
 							shouldrightPointerMove = true;
 							continue;
 						}else if(leftFileId < rightFileId){
-							resultPostings.add(leftTermDocFreq);
+							DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(leftTermDocFreq.getFileId(),leftTermDocFreq.getTfIdf());
+							resultPostings.add(doc);
 							shouldLeftPointerMove = true;
 							continue;
 						}else{
@@ -164,23 +171,42 @@ public class SearchRunner {
 				}
 			} else {
 				String[] queryIndexValues = nodeValue.contains(":")?nodeValue.split(":"): new String[] {nodeValue};
-				
+				List<TermDocumentFreq> postings;
 				if(queryIndexValues.length==1) {
 					IndexReader reader = new IndexReader(indexDir, IndexType.TERM);
-					Map<String, Integer> postings = reader.query(queryIndexValues[0]);
+					postings = reader.query(queryIndexValues[0]);
 					//convert MAP<String,Integer> to List<TermDocumentFreq> and return it.
-					for(String s: postings.keySet()) {
-						TermDocumentFreq term = new TermDocumentFreq(s, postings.get(s));
-						resultPostings.add(term);
-					}
 				}else {
-					IndexReader
+					IndexReader reader;
+					if(queryIndexValues[0].equalsIgnoreCase("AUTHOR"))
+					{
+						reader = new IndexReader(indexDir, IndexType.AUTHOR);
+					}
+					else if(queryIndexValues[0].equalsIgnoreCase("CATEGORY"))
+					{
+						reader = new IndexReader(indexDir, IndexType.CATEGORY);
+					}
+					else if(queryIndexValues[0].equalsIgnoreCase("PLACE"))
+					{
+						reader = new IndexReader(indexDir, IndexType.PLACE);
+					}
+					else
+					{
+						reader = new IndexReader(indexDir, IndexType.TERM);
+					}
+					postings = reader.query(queryIndexValues[1]);
+				}
+				for (TermDocumentFreq termDocumentFreq : postings) {
+					double tfidf = (1.0+Math.log10(termDocumentFreq.getFrequency().doubleValue()))*Math.log10(100000/postings.size())/termDocumentFreq.getLength();
+					DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(termDocumentFreq.getFileId(),tfidf);
+					resultPostings.add(doc);
 				}
 			}
-			return resultPostings;
 		}
+		return resultPostings;
 	}
 
+	
 	/**
 	 * Method to execute queries in E mode
 	 * @param queryFile : The file from which queries are to be read and executed

@@ -195,9 +195,44 @@ public class IndexReader {
 	 * if the given term list returns no results
 	 * BONUS ONLY
 	 */
-	public Map<String, Integer> query(String...terms) {
+//	public Map<String, Integer> query(String...terms) {
+//		//TODO : BONUS ONLY
+//		Map<String, Integer> map = new HashMap<String, Integer>();
+//		List<TermDocumentFreq> myList = new ArrayList<TermDocumentFreq>();
+//		List<Token> myTokenList = new ArrayList<Token>();
+//		for(String queryTerm: terms)
+//			myTokenList.add(new Token(queryTerm));
+//		TokenStream myStream = new TokenStream((ArrayList<Token>) myTokenList);
+//		AnalyzerFactory myAnalyzerFactory = AnalyzerFactory.getInstance();
+//		TokenFilter myFilter = (TokenFilter) myAnalyzerFactory.getAnalyzerForField(names, myStream);
+//		while(myFilter!=null) {
+//			myFilter.perform();
+//			myFilter = myFilter.getNextFilter();
+//		}
+//		while(myStream.hasNext()) {
+//			Token myToken = myStream.next();
+//			String queryTerm = myToken.getTermText();
+//			if(dictionary.get(queryTerm)==null) {
+//				return null;
+//			}
+//			List<TermDocumentFreq> postingsList = index.get(dictionary.get(queryTerm));
+//			if(myList.size()!=0) {
+//				myList = intersectPostingsForTerms(myList, postingsList);
+//			}
+//			else {
+//				myList.addAll(postingsList);
+//			}
+//		}
+//		if(myList.size()==0)
+//			return null;
+//		for(TermDocumentFreq queryTerm: myList) {
+//			map.put(queryTerm.getFileId(), queryTerm.getFrequency());
+//		}
+//		return map;
+//	}
+
+	public List<TermDocumentFreq> query(String...terms) {
 		//TODO : BONUS ONLY
-		Map<String, Integer> map = new HashMap<String, Integer>();
 		List<TermDocumentFreq> myList = new ArrayList<TermDocumentFreq>();
 		List<Token> myTokenList = new ArrayList<Token>();
 		for(String queryTerm: terms)
@@ -216,38 +251,35 @@ public class IndexReader {
 				return null;
 			}
 			List<TermDocumentFreq> postingsList = index.get(dictionary.get(queryTerm));
-			if(myList.size()!=0) {
-				myList = intersectPostingsForTerms(myList, postingsList);
-			}
-			else {
+//			if(myList.size()!=0) {
+//				myList = intersectPostingsForTerms(myList, postingsList);
+//			}
+//			else {
 				myList.addAll(postingsList);
-			}
+//			}
 		}
 		if(myList.size()==0)
 			return null;
-		for(TermDocumentFreq queryTerm: myList) {
-			map.put(queryTerm.getFileId(), queryTerm.getFrequency());
-		}
-		return map;
+		else return myList;
 	}
 
-	private List<TermDocumentFreq> intersectPostingsForTerms(List<TermDocumentFreq> myList,	List<TermDocumentFreq> postingsList) {
-		int i=0,j=0;
-		List<TermDocumentFreq> result = new ArrayList<TermDocumentFreq>();
-		for(int value;i<myList.size()-1 && j<postingsList.size()-1;) {
-			value = myList.get(i).getFileId().compareTo(postingsList.get(j).getFileId());
-			if(value==0) {
-				result.add(new TermDocumentFreq(
-						myList.get(i).getFileId(),
-						myList.get(i).getFrequency()+ postingsList.get(i).getFrequency()));
-				i++; j++;
-			}else if(value < 0) {
-				i++;
-			}
-			else {
-				j++;
-			}
-		}
-		return result;
-	}
+//	private List<TermDocumentFreq> intersectPostingsForTerms(List<TermDocumentFreq> myList,	List<TermDocumentFreq> postingsList) {
+//		int i=0,j=0;
+//		List<TermDocumentFreq> result = new ArrayList<TermDocumentFreq>();
+//		for(int value;i<myList.size()-1 && j<postingsList.size()-1;) {
+//			value = myList.get(i).getFileId().compareTo(postingsList.get(j).getFileId());
+//			if(value==0) {
+//				result.add(new TermDocumentFreq(
+//						myList.get(i).getFileId(),
+//						myList.get(i).getFrequency()+ postingsList.get(i).getFrequency()));
+//				i++; j++;
+//			}else if(value < 0) {
+//				i++;
+//			}
+//			else {
+//				j++;
+//			}
+//		}
+//		return result;
+//	}
 }

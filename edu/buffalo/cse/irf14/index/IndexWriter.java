@@ -46,6 +46,7 @@ public class IndexWriter {
 	 
 	 private TokenStream myStream;
 	 private String fileId;
+	 private Integer docLength;
 	/**
 	 * Default constructor
 	 * @param indexDir : The root directory to be sued for indexing
@@ -71,6 +72,7 @@ public class IndexWriter {
 			for (FieldNames fieldName : d.getFieldNames()) {
 				myStream = myTokenizer.consume(d.getField(fieldName)[0]);
 				fileId = d.getField(FieldNames.FILEID)[0];
+				docLength = d.getDocumentLength();
 				TokenFilter myFilter = (TokenFilter)myAnalyzerFactory.getAnalyzerForField(fieldName, myStream);
 				while(myFilter!=null) {
 					myFilter.perform();
@@ -112,14 +114,14 @@ public class IndexWriter {
         	{
         		count++;
         		dictionary.put(tokenText,count);
-            	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
+            	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1,docLength);
             	docsList.add(termDocItem);
             	termIndex2.put(count, (ArrayList<TermDocumentFreq>) docsList);
         	}else
         	{
                 docsList = termIndex2.get(ind);
                 if(!docsList.contains(fileId)) {
-                	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
+                	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1,docLength);
                 	docsList.add(termDocItem);
                 	termIndex2.put(ind, (ArrayList<TermDocumentFreq>) docsList);
                 }
