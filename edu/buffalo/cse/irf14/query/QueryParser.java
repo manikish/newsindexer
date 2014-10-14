@@ -25,7 +25,7 @@ public class QueryParser {
 	 * @param defaultOperator : The default operator to use, one amongst (AND|OR)
 	 * @return Query object if successfully parsed, null otherwise
 	 */
-	public static Query parse(String userQuery, String defaultOperator) {
+	public static Query parse(String userQuery, String defaultOperator) { //yet to implement operator stack for free text queries
 		//TODO: YOU MUST IMPLEMENT THIS METHOD
 		Query myQuery = new Query();
 		Stack<String> operatorStack = new Stack<String>();
@@ -33,6 +33,7 @@ public class QueryParser {
 		int queryStringIndex =-1;
 		String quotedQueryTerm = null;
 		boolean quotes=false;
+		boolean freeTextQueryTerms = false;
 		if(!defaultOperator.isEmpty() && !defaultOperator.equals(QueryParser.defaultOperator)) {
 			QueryParser.defaultOperator = defaultOperator;
 		}
@@ -54,11 +55,15 @@ public class QueryParser {
 				if(!quotes) {
 					if(OPERANDS.contains(myString)) {
 						operatorStack.push(myString);
+						freeTextQueryTerms = false;
 					}
 					else if(myString.contains(COLON)){
 						queryStringList.add(myString);
 					}
 					else {
+						if(freeTextQueryTerms) {
+							operatorStack.push("OR");
+						}
 						queryStringList.add(defaultIndex+myString);
 						defaultIndex = "Term:";
 					}
