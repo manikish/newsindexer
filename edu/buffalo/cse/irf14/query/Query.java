@@ -11,6 +11,9 @@ public class Query {
 	public String getToString() {
 		return toString;
 	}
+	public void setToString(String temp) {
+		toString = temp;
+	}
 	public static class Tree {
 		private String nodeValue;
 		private Tree leftLeaf;
@@ -51,9 +54,6 @@ public class Query {
 	 */
 	public String toString() {
 		//TODO: YOU MUST IMPLEMENT THIS
-		if(toString.isEmpty()) {
-			toString = null;
-		}
 		return toString;
 	}
 }

@@ -1,6 +1,8 @@
 package edu.buffalo.cse.irf14;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -258,5 +260,33 @@ public class SearchRunner {
 	public List<String> getCorrections() {
 		//TODO: IMPLEMENT THIS METHOD IFF SPELLCHECK EXECUTED
 		return null;
+	}
+	
+	public static void main(String[] args) {
+		try {
+//			String query = "(Term:casino AND (Category:zenith AND Category:adobe) OR Place:California) laser takeovers";
+//			String query = "(Term:casino AND (Category:zenith AND Category:adobe) OR \"hello world\") laser takeovers";
+//			String query = "\"hello computer world\" \"tree parser\" ((first NOT second) AND third)";
+//			String query = "\"hello computer world\" Category:\"tree parser\" ((first NOT second) AND third)";
+//			String query = "(Love NOT War) AND Category:(movies NOT crime)";
+//			String query = "Category:War AND Author:Dutt AND Place:(Baghdad AND Mysore) detainees rebels";
+//			String query = "author:\"Patti Domm\" AND american express";
+//			String query = "author:(brian OR richard) AND place:(paris OR washington)";
+//			String query = "author:minkwoski OR disney";
+//			String query = "place:tokyo NOT bank";
+//			String query = "french economy employment government policies";
+			String query = "author:torday AND (debt OR currency)";
+//			String query = "author:miller OR miller";
+//			String query = "category:coffee beans";
+//			String query = "place:washington AND federal treasury";
+//			String query = "place:paris AND government";
+//			String query = "blah blah blah";
+//			String query = "mitsubishi";
+			SearchRunner runner = new SearchRunner("D:\\SourceTree\\", "D:\\SourceTree\\", 'Q', new PrintStream(new FileOutputStream(new File("D:\\SourceTree\\searchresultstemp"))));
+			runner.query(query, ScoringModel.TFIDF);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
