@@ -71,11 +71,19 @@ public class SearchRunner {
 		//TODO: IMPLEMENT THIS METHOD
 		Query query = QueryParser.parse(userQuery, "OR");
 		List<String> resultPostings = getPostingsList(query.getQueryTree());
-//		switch(model)
-//		{
-//		case TFIDF:
-//			getTFIDFTopResults(resultPostings);
-//		}
+		HashMap<String,Double> results = null;
+		switch(model)
+		{
+		case TFIDF:
+			results = getTFIDFTopResults(resultPostings);
+			break;
+		case OKAPI:
+			break;
+		}
+		Set<String> fileIds = results.keySet();
+		for (String fileId : fileIds) {
+			System.out.println("FileId: "+fileId+"TF-IDF: "+results.get(fileId));
+		}
 	}
 	
 	private HashMap<String,Double> getTFIDFTopResults(List<String> results)
