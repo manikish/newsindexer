@@ -5,9 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ListIterator;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.hamcrest.core.IsEqual;
 
@@ -26,13 +30,18 @@ import edu.buffalo.cse.irf14.DocumentWithTfIdfWeight;
  */
 public class SearchRunner {
 	private String indexDir, corpusDir;
-	private char mode;
+	private char mode; 
 	private PrintStream stream;
 	
 	private IndexReader indexReader;
 	private Integer documentsCount = 0;
 	public enum ScoringModel {TFIDF, OKAPI};
 	
+	private HashMap<String, Integer> queryTermFrequency = new HashMap<String, Integer>();
+	private HashMap<String, Integer> queryTermDocumentFrequency = new HashMap<String, Integer>();
+	private HashMap<String, HashMap<String, Double>> queryTermDocumentTDIDF = new HashMap<String, HashMap<String, Double>>();
+
+	private TreeMap<Double, List<String>> topResults = new TreeMap<Double, List<String>>();
 	/**
 	 * Default (and only public) constuctor
 	 * @param indexDir : The directory where the index resides
@@ -69,10 +78,50 @@ public class SearchRunner {
 //		}
 	}
 	
-	private List<String> getTFIDFTopResults(List<String> results)
+	private HashMap<String,Double> getTFIDFTopResults(List<String> results)
 	{
+		Set<String> queryTerms = queryTermFrequency.keySet();
+
+		for (String fileId : results) {
+			double finalTfidf = 0.0;
+			Double lengthOfQueryVector = 0.0;
+			Double lengthOfDocumentVector = 0.0;
+					
+			for (String queryTerm : queryTerms) {
+				double tfidf = (1.0+Math.log10(queryTermFrequency.get(queryTerm).doubleValue()))*Math.log10(IndexReader.documentsLengths.get("documentsCount")/queryTermDocumentFrequency.get(queryTerm));
+
+				lengthOfQueryVector = lengthOfQueryVector+(tfidf*tfidf);
+
+				Double docTfidf = queryTermDocumentTDIDF.get(queryTerm).get(fileId);				
+				lengthOfDocumentVector = lengthOfDocumentVector+(docTfidf*docTfidf);
+				finalTfidf = finalTfidf+tfidf*docTfidf;
+			}
+			finalTfidf = finalTfidf/Math.sqrt(lengthOfQueryVector)*Math.sqrt(lengthOfDocumentVector);
+			List<String> list = topResults.get(finalTfidf);
+			if(list == null){
+				list = new ArrayList<String>();
+			}
+			list.add(fileId);
+			topResults.put(finalTfidf, list);
+
+		}
 		
-		return null;
+		Set<Double> finalTfidfs = topResults.descendingKeySet();
+		HashMap<String, Double> top10Results = new HashMap<String, Double>();
+		int k =10;
+		for(Double key: finalTfidfs) {
+			List<String> temp = topResults.get(key);
+			for (String fileId : temp) {
+				top10Results.put(fileId, key);
+			}
+			if(k >= temp.size()) {
+				k = k- temp.size();
+			}
+			else {
+				break;
+			}			
+		}
+		return top10Results;
 	}
 	
 	private List<String> getPostingsList(Tree queryTree) {
@@ -206,9 +255,25 @@ public class SearchRunner {
 					{
 						indexType = IndexType.TERM;
 					}
+					Integer count = queryTermFrequency.get(queryIndexValues[0]);
+					if(count>0){
+						count++;
+						queryTermFrequency.put(queryIndexValues[0], count);
+					}
+					else queryTermFrequency.put(queryIndexValues[0], 1);
+					
 					postings = indexReader.query(queryIndexValues[1], indexType);
+					Integer documentFrequency = queryTermDocumentFrequency.get(queryIndexValues[0]);
+					if(documentFrequency == null){
+						queryTermDocumentFrequency.put(queryIndexValues[0], postings.size());
+					}
 				}
 				for (TermDocumentFreq termDocumentFreq : postings) {
+					double tfidf = (1.0+Math.log10(termDocumentFreq.getFrequency().doubleValue()))*Math.log10(IndexReader.documentsLengths.get("documentsCount")/postings.size());
+					HashMap<String, Double> docTfidfMap = queryTermDocumentTDIDF.get(queryIndexValues[0]);
+					docTfidfMap.put(termDocumentFreq.getFileId(), tfidf);
+					queryTermDocumentTDIDF.put(queryIndexValues[0], docTfidfMap);
+					
 					resultPostings.add(termDocumentFreq.getFileId());
 				}
 			}
