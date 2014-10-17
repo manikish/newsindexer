@@ -34,7 +34,6 @@ public class SearchRunner {
 	private PrintStream stream;
 	
 	private IndexReader indexReader;
-	private Integer documentsCount = 0;
 	public enum ScoringModel {TFIDF, OKAPI};
 	
 	private HashMap<String, Integer> queryTermFrequency = new HashMap<String, Integer>();
@@ -58,8 +57,6 @@ public class SearchRunner {
 		this.stream = stream;
 		
 		indexReader = new IndexReader(indexDir);
-		File corpus = new File(corpusDir);
-		documentsCount = corpus.list().length;
 	}
 	
 	/**
@@ -104,7 +101,7 @@ public class SearchRunner {
 				lengthOfDocumentVector = lengthOfDocumentVector+(docTfidf*docTfidf);
 				finalTfidf = finalTfidf+tfidf*docTfidf;
 			}
-			finalTfidf = finalTfidf/Math.sqrt(lengthOfQueryVector)*Math.sqrt(lengthOfDocumentVector);
+			finalTfidf = finalTfidf/Math.sqrt(lengthOfQueryVector)*Math.sqrt(lengthOfDocumentVector)*IndexReader.documentsLengths.get(fileId);
 			List<String> list = topResults.get(finalTfidf);
 			if(list == null){
 				list = new ArrayList<String>();
