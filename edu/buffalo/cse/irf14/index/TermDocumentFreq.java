@@ -6,14 +6,12 @@ public class TermDocumentFreq implements Serializable {
 	
 	private String fileId;
 	private Integer frequency = new Integer(0);
-	private Integer length  = new Integer(0);
 	
 	public TermDocumentFreq() {}
 	
-	public TermDocumentFreq(String fileId, Integer frequency, Integer length) {
+	public TermDocumentFreq(String fileId, Integer frequency) {
 		this.fileId = fileId;
 		this.frequency = frequency;
-		this.length = length;
 	}
 	
 	public String getFileId() {
@@ -28,11 +26,5 @@ public class TermDocumentFreq implements Serializable {
 	public void setFrequency(Integer frequency) {
 		this.frequency = frequency;
 	}	
-	public void setLength(Integer length) {
-		this.length = length;
-	}
-	public Integer getLength() {
-		return length;
-	}
-
+	
 }

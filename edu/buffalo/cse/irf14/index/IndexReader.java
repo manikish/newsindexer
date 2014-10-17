@@ -21,15 +21,30 @@ import edu.buffalo.cse.irf14.analysis.Token;
 import edu.buffalo.cse.irf14.analysis.TokenFilter;
 import edu.buffalo.cse.irf14.analysis.TokenStream;
 import edu.buffalo.cse.irf14.document.FieldNames;
-
+@SuppressWarnings("unchecked")
 /**
  * @author nikhillo
  * Class that emulates reading data back from a written index
  */
 public class IndexReader {
 	
+	 private static HashMap<String, Integer> termDictionary = new HashMap<String, Integer>();
+	 private static HashMap<Integer, List<TermDocumentFreq>> termIndex = new HashMap<Integer, List<TermDocumentFreq>>();
+	 
+	 private static HashMap<String, Integer> authorDictionary = new HashMap<String, Integer>();
+	 private static HashMap<Integer, List<TermDocumentFreq>> authorIndex = new HashMap<Integer, List<TermDocumentFreq>>();
+	 
+	 private static HashMap<String, Integer> placeDictionary = new HashMap<String, Integer>();
+	 private static HashMap<Integer, List<TermDocumentFreq>> placeIndex = new HashMap<Integer, List<TermDocumentFreq>>();
+	 
+	 private static HashMap<String, Integer> categoryDictionary = new HashMap<String, Integer>();
+	 private static HashMap<Integer, List<TermDocumentFreq>> categoryIndex = new HashMap<Integer, List<TermDocumentFreq>>();
+	
 	private static HashMap<String, Integer> dictionary = new HashMap<String, Integer>();
 	private static HashMap<Integer, List<TermDocumentFreq>> index = new HashMap<Integer, List<TermDocumentFreq>>();
+	
+	public static HashMap<String, Integer> documentsLengths = new HashMap<String, Integer>();
+
 	private IndexType indexType;
 	private String indexDir;
 	private FieldNames names;
@@ -88,6 +103,42 @@ public class IndexReader {
 		}
 	}
 	
+	public IndexReader(String indexDir)
+	{
+		this.indexDir = indexDir;
+		ObjectInputStream oistream = null;
+			try {
+					oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"termIndex"));
+					termIndex = (HashMap<Integer, List<TermDocumentFreq>>) oistream.readObject();
+					oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"termDictionary"));
+					termDictionary = (HashMap<String, Integer>) oistream.readObject();
+
+					oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"authorIndex"));
+					authorIndex = (HashMap<Integer, List<TermDocumentFreq>>) oistream.readObject();
+					oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"authorDictionary"));
+					authorDictionary = (HashMap<String, Integer>) oistream.readObject();
+
+					oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"placeIndex"));
+					placeIndex = (HashMap<Integer, List<TermDocumentFreq>>) oistream.readObject();
+					oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"placeDictionary"));
+					placeDictionary = (HashMap<String, Integer>) oistream.readObject();
+
+					oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"categoryIndex"));
+					categoryIndex = (HashMap<Integer, List<TermDocumentFreq>>) oistream.readObject();
+					oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"categoryDictionary"));
+					categoryDictionary = (HashMap<String, Integer>) oistream.readObject();
+					
+					oistream = new ObjectInputStream(new FileInputStream(indexDir+File.separator+"documentsLengths"));
+					documentsLengths = (HashMap<String, Integer>) oistream.readObject();
+				}
+			catch(IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	/**
 	 * Get total number of terms from the "key" dictionary associated with this 
 	 * index. A postings list is always created against the "key" dictionary
@@ -195,48 +246,12 @@ public class IndexReader {
 	 * if the given term list returns no results
 	 * BONUS ONLY
 	 */
-//	public Map<String, Integer> query(String...terms) {
-//		//TODO : BONUS ONLY
-//		Map<String, Integer> map = new HashMap<String, Integer>();
-//		List<TermDocumentFreq> myList = new ArrayList<TermDocumentFreq>();
-//		List<Token> myTokenList = new ArrayList<Token>();
-//		for(String queryTerm: terms)
-//			myTokenList.add(new Token(queryTerm));
-//		TokenStream myStream = new TokenStream((ArrayList<Token>) myTokenList);
-//		AnalyzerFactory myAnalyzerFactory = AnalyzerFactory.getInstance();
-//		TokenFilter myFilter = (TokenFilter) myAnalyzerFactory.getAnalyzerForField(names, myStream);
-//		while(myFilter!=null) {
-//			myFilter.perform();
-//			myFilter = myFilter.getNextFilter();
-//		}
-//		while(myStream.hasNext()) {
-//			Token myToken = myStream.next();
-//			String queryTerm = myToken.getTermText();
-//			if(dictionary.get(queryTerm)==null) {
-//				return null;
-//			}
-//			List<TermDocumentFreq> postingsList = index.get(dictionary.get(queryTerm));
-//			if(myList.size()!=0) {
-//				myList = intersectPostingsForTerms(myList, postingsList);
-//			}
-//			else {
-//				myList.addAll(postingsList);
-//			}
-//		}
-//		if(myList.size()==0)
-//			return null;
-//		for(TermDocumentFreq queryTerm: myList) {
-//			map.put(queryTerm.getFileId(), queryTerm.getFrequency());
-//		}
-//		return map;
-//	}
 
-	public List<TermDocumentFreq> query(String...terms) {
+	public List<TermDocumentFreq> query(String term, IndexType type) {
 		//TODO : BONUS ONLY
 		List<TermDocumentFreq> myList = new ArrayList<TermDocumentFreq>();
 		List<Token> myTokenList = new ArrayList<Token>();
-		for(String queryTerm: terms)
-			myTokenList.add(new Token(queryTerm));
+		myTokenList.add(new Token(term));
 		TokenStream myStream = new TokenStream((ArrayList<Token>) myTokenList);
 		AnalyzerFactory myAnalyzerFactory = AnalyzerFactory.getInstance();
 		TokenFilter myFilter = (TokenFilter) myAnalyzerFactory.getAnalyzerForField(names, myStream);
@@ -244,19 +259,44 @@ public class IndexReader {
 			myFilter.perform();
 			myFilter = myFilter.getNextFilter();
 		}
+		List<TermDocumentFreq> postingsList;
 		while(myStream.hasNext()) {
 			Token myToken = myStream.next();
 			String queryTerm = myToken.getTermText();
-			if(dictionary.get(queryTerm)==null) {
-				return null;
-			}
-			List<TermDocumentFreq> postingsList = index.get(dictionary.get(queryTerm));
-//			if(myList.size()!=0) {
-//				myList = intersectPostingsForTerms(myList, postingsList);
-//			}
-//			else {
+			switch(type)
+			{
+			case TERM:
+				if(termDictionary.get(queryTerm)==null) {
+					return null;
+				}
+				postingsList = termIndex.get(termDictionary.get(queryTerm));
 				myList.addAll(postingsList);
-//			}
+				break;
+			case PLACE:
+				if(placeDictionary.get(queryTerm)==null) {
+					return null;
+				}
+				postingsList = placeIndex.get(placeDictionary.get(queryTerm));
+				myList.addAll(postingsList);
+				break;
+
+			case CATEGORY:
+				if(categoryDictionary.get(queryTerm)==null) {
+					return null;
+				}
+				postingsList = categoryIndex.get(categoryDictionary.get(queryTerm));
+				myList.addAll(postingsList);
+				break;
+
+			case AUTHOR:
+				if(authorDictionary.get(queryTerm)==null) {
+					return null;
+				}
+				postingsList = authorIndex.get(authorDictionary.get(queryTerm));
+				myList.addAll(postingsList);
+				break;
+			}
+			
 		}
 		if(myList.size()==0)
 			return null;

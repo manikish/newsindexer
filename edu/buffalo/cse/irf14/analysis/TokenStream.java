@@ -153,4 +153,9 @@ public class TokenStream implements Iterator<Token>{
 	{
 		return listIterator.nextIndex();
 	}
+	
+	public Integer getSize()
+	{
+		return tokenStream.size();
+	}
 }

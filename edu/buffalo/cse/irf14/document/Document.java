@@ -44,13 +44,4 @@ public class Document {
 		return map.keySet();
 	}
 	
-	public Integer getDocumentLength()
-	{
-		Integer length = 0;
-		Set<FieldNames> fieldNames = getFieldNames();
-		for (FieldNames fieldNames2 : fieldNames) {
-			length = length+getField(fieldNames2).length;
-		}
-		return length;
-	}
 }

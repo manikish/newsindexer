@@ -29,6 +29,8 @@ public class SearchRunner {
 	private char mode;
 	private PrintStream stream;
 	
+	private IndexReader indexReader;
+	private Integer documentsCount = 0;
 	public enum ScoringModel {TFIDF, OKAPI};
 	
 	/**
@@ -45,6 +47,10 @@ public class SearchRunner {
 		this.indexDir = indexDir;
 		this.mode = mode;
 		this.stream = stream;
+		
+		indexReader = new IndexReader(indexDir);
+		File corpus = new File(corpusDir);
+		documentsCount = corpus.list().length;
 	}
 	
 	/**
@@ -55,46 +61,55 @@ public class SearchRunner {
 	public void query(String userQuery, ScoringModel model) {
 		//TODO: IMPLEMENT THIS METHOD
 		Query query = QueryParser.parse(userQuery, "OR");
-		List<DocumentWithTfIdfWeight> resultPostings = getPostingsList(query.getQueryTree());
-		
+		List<String> resultPostings = getPostingsList(query.getQueryTree());
+//		switch(model)
+//		{
+//		case TFIDF:
+//			getTFIDFTopResults(resultPostings);
+//		}
 	}
 	
-	private List<DocumentWithTfIdfWeight> getPostingsList(Tree queryTree) {
+	private List<String> getTFIDFTopResults(List<String> results)
+	{
+		
+		return null;
+	}
+	
+	private List<String> getPostingsList(Tree queryTree) {
 		// TODO Auto-generated method stub
 		Tree node = queryTree;
-		List<DocumentWithTfIdfWeight> resultPostings = new ArrayList<DocumentWithTfIdfWeight>();
+		List<String> resultPostings = new ArrayList<String>();
 		while(node!=null) {
-			List<DocumentWithTfIdfWeight> leftPostings = getPostingsList(node.getLeftLeaf());
-			List<DocumentWithTfIdfWeight> rightPostings = getPostingsList(node.getRightLeaf());
+			List<String> leftPostings = getPostingsList(node.getLeftLeaf());
+			List<String> rightPostings = getPostingsList(node.getRightLeaf());
 			String nodeValue = node.getNodeValue();
 			if(QueryParser.OPERANDS.contains(nodeValue)) {
-				ListIterator<DocumentWithTfIdfWeight> leftIterator = leftPostings.listIterator();
-				ListIterator<DocumentWithTfIdfWeight> rightIterator = rightPostings.listIterator();
-				DocumentWithTfIdfWeight leftTermDocFreq = new DocumentWithTfIdfWeight(); 
-				DocumentWithTfIdfWeight rightTermDocFreq = new DocumentWithTfIdfWeight();
+				ListIterator<String> leftIterator = leftPostings.listIterator();
+				ListIterator<String> rightIterator = rightPostings.listIterator();
+				String leftDoc = null;
+				String rightDoc = null;
 				boolean shouldLeftPointerMove = true;
 				boolean shouldrightPointerMove = true;	
-				resultPostings = new ArrayList<DocumentWithTfIdfWeight>();
+				resultPostings = new ArrayList<String>();
 				if("AND".equals(nodeValue)) {
 					//perform AND operation on leftPostings and rightPostings
 					while(leftIterator.hasNext() || rightIterator.hasNext())
 					{
 						if(shouldLeftPointerMove)
 						{
-							leftTermDocFreq = leftIterator.next();
+							leftDoc = leftIterator.next();
 							shouldLeftPointerMove = false;
 						}
 						if(shouldrightPointerMove)
 						{
-							rightTermDocFreq = rightIterator.next();
+							rightDoc = rightIterator.next();
 							shouldrightPointerMove = false;
 						}
-						Integer leftFileId =  Integer.parseInt(leftTermDocFreq.getFileId());
-						Integer rightFileId =  Integer.parseInt(rightTermDocFreq.getFileId());
+						Integer leftFileId =  Integer.parseInt(leftDoc);
+						Integer rightFileId =  Integer.parseInt(rightDoc);
 						if(leftFileId == rightFileId)
 						{
-							DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(leftTermDocFreq.getFileId(),leftTermDocFreq.getTfIdf()+rightTermDocFreq.getTfIdf());
-							resultPostings.add(doc);
+							resultPostings.add(leftDoc);
 							shouldLeftPointerMove = true;
 							shouldrightPointerMove = true;
 							continue;
@@ -111,31 +126,28 @@ public class SearchRunner {
 					{
 						if(shouldLeftPointerMove)
 						{
-							leftTermDocFreq = leftIterator.next();
+							leftDoc = leftIterator.next();
 							shouldLeftPointerMove = false;
 						}
 						if(shouldrightPointerMove)
 						{
-							rightTermDocFreq = rightIterator.next();
+							rightDoc = rightIterator.next();
 							shouldrightPointerMove = false;
 						}
-						Integer leftFileId =  Integer.parseInt(leftTermDocFreq.getFileId());
-						Integer rightFileId =  Integer.parseInt(rightTermDocFreq.getFileId());
+						Integer leftFileId =  Integer.parseInt(leftDoc);
+						Integer rightFileId =  Integer.parseInt(rightDoc);						
 						if(leftFileId == rightFileId)
 						{
-							DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(leftTermDocFreq.getFileId(),leftTermDocFreq.getTfIdf()+rightTermDocFreq.getTfIdf());
-							resultPostings.add(doc);
+							resultPostings.add(leftDoc);
 							shouldLeftPointerMove = true;
 							shouldrightPointerMove = true;
 							continue;
 						}else if(leftFileId < rightFileId){
-							DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(leftTermDocFreq.getFileId(),leftTermDocFreq.getTfIdf());
-							resultPostings.add(doc);
+							resultPostings.add(leftDoc);
 							shouldLeftPointerMove = true;
 							continue;
 						}else{
-							DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(rightTermDocFreq.getFileId(),rightTermDocFreq.getTfIdf());
-							resultPostings.add(doc);
+							resultPostings.add(rightDoc);
 							shouldrightPointerMove = true;
 						}
 					}
@@ -145,24 +157,23 @@ public class SearchRunner {
 					{
 						if(shouldLeftPointerMove)
 						{
-							leftTermDocFreq = leftIterator.next();
+							leftDoc = leftIterator.next();
 							shouldLeftPointerMove = false;
 						}
 						if(shouldrightPointerMove)
 						{
-							rightTermDocFreq = rightIterator.next();
+							rightDoc = rightIterator.next();
 							shouldrightPointerMove = false;
 						}
-						Integer leftFileId =  Integer.parseInt(leftTermDocFreq.getFileId());
-						Integer rightFileId =  Integer.parseInt(rightTermDocFreq.getFileId());
+						Integer leftFileId =  Integer.parseInt(leftDoc);
+						Integer rightFileId =  Integer.parseInt(rightDoc);
 						if(leftFileId == rightFileId)
 						{
 							shouldLeftPointerMove = true;
 							shouldrightPointerMove = true;
 							continue;
 						}else if(leftFileId < rightFileId){
-							DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(leftTermDocFreq.getFileId(),leftTermDocFreq.getTfIdf());
-							resultPostings.add(doc);
+							resultPostings.add(leftDoc);
 							shouldLeftPointerMove = true;
 							continue;
 						}else{
@@ -175,33 +186,30 @@ public class SearchRunner {
 				String[] queryIndexValues = nodeValue.contains(":")?nodeValue.split(":"): new String[] {nodeValue};
 				List<TermDocumentFreq> postings;
 				if(queryIndexValues.length==1) {
-					IndexReader reader = new IndexReader(indexDir, IndexType.TERM);
-					postings = reader.query(queryIndexValues[0]);
+					postings = indexReader.query(queryIndexValues[0],IndexType.TERM);
 					//convert MAP<String,Integer> to List<TermDocumentFreq> and return it.
 				}else {
-					IndexReader reader;
+					IndexType indexType;
 					if(queryIndexValues[0].equalsIgnoreCase("AUTHOR"))
 					{
-						reader = new IndexReader(indexDir, IndexType.AUTHOR);
+						indexType = IndexType.AUTHOR;
 					}
 					else if(queryIndexValues[0].equalsIgnoreCase("CATEGORY"))
 					{
-						reader = new IndexReader(indexDir, IndexType.CATEGORY);
+						indexType = IndexType.CATEGORY;
 					}
 					else if(queryIndexValues[0].equalsIgnoreCase("PLACE"))
 					{
-						reader = new IndexReader(indexDir, IndexType.PLACE);
+						indexType = IndexType.PLACE;
 					}
 					else
 					{
-						reader = new IndexReader(indexDir, IndexType.TERM);
+						indexType = IndexType.TERM;
 					}
-					postings = reader.query(queryIndexValues[1]);
+					postings = indexReader.query(queryIndexValues[1], indexType);
 				}
 				for (TermDocumentFreq termDocumentFreq : postings) {
-					double tfidf = (1.0+Math.log10(termDocumentFreq.getFrequency().doubleValue()))*Math.log10(100000/postings.size())/termDocumentFreq.getLength();
-					DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(termDocumentFreq.getFileId(),tfidf);
-					resultPostings.add(doc);
+					resultPostings.add(termDocumentFreq.getFileId());
 				}
 			}
 		}
@@ -263,7 +271,7 @@ public class SearchRunner {
 	}
 	
 	public static void main(String[] args) {
-		try {
+//		try {
 //			String query = "(Term:casino AND (Category:zenith AND Category:adobe) OR Place:California) laser takeovers";
 //			String query = "(Term:casino AND (Category:zenith AND Category:adobe) OR \"hello world\") laser takeovers";
 //			String query = "\"hello computer world\" \"tree parser\" ((first NOT second) AND third)";
@@ -282,11 +290,11 @@ public class SearchRunner {
 //			String query = "place:paris AND government";
 //			String query = "blah blah blah";
 //			String query = "mitsubishi";
-			SearchRunner runner = new SearchRunner("D:\\SourceTree\\", "D:\\SourceTree\\", 'Q', new PrintStream(new FileOutputStream(new File("D:\\SourceTree\\searchresultstemp"))));
+			SearchRunner runner = new SearchRunner("Users/Mani/Documents/MS CS/IR/", "Users/Mani/Documents/MS CS/IR/training", 'Q', null);
 			runner.query(query, ScoringModel.TFIDF);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 }

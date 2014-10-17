@@ -42,11 +42,16 @@ public class IndexWriter {
 	 private HashMap<String, Integer> categoryDictionary = new HashMap<String, Integer>();
 	 private HashMap<Integer, List<TermDocumentFreq>> categoryIndex = new HashMap<Integer, List<TermDocumentFreq>>();
 	 
+	 private HashMap<String, Integer> documentsLengths = new HashMap<String, Integer>();
+	 
 	 private static Integer termCount = 0, authorCount = 0, placeCount = 0, categoryCount = 0;
 	 
 	 private TokenStream myStream;
 	 private String fileId;
 	 private Integer docLength;
+	 private Integer totalDocumentsLength = 0;
+	 private Integer documentsCount = 0;
+	 
 	/**
 	 * Default constructor
 	 * @param indexDir : The root directory to be sued for indexing
@@ -69,15 +74,17 @@ public class IndexWriter {
 		Tokenizer myTokenizer = new Tokenizer();
 		try {
 			//hardcoded 0
+			docLength = 0;
+			documentsCount++;
 			for (FieldNames fieldName : d.getFieldNames()) {
 				myStream = myTokenizer.consume(d.getField(fieldName)[0]);
 				fileId = d.getField(FieldNames.FILEID)[0];
-				docLength = d.getDocumentLength();
 				TokenFilter myFilter = (TokenFilter)myAnalyzerFactory.getAnalyzerForField(fieldName, myStream);
 				while(myFilter!=null) {
 					myFilter.perform();
 					myFilter = myFilter.getNextFilter();
 				}
+				docLength = docLength + myStream.getSize();
 				switch (fieldName) {
 				case AUTHOR:
 					authorCount = write(authorDictionary, authorIndex, authorCount);
@@ -94,7 +101,9 @@ public class IndexWriter {
 					termCount = write(termDictionary, termIndex, termCount);
 					break;
 				}
-			}			
+			}		
+			documentsLengths.put(fileId, docLength);
+			totalDocumentsLength = totalDocumentsLength+docLength;
 		} catch (TokenizerException e) {
 			// TODO Auto-generated catch block
 			throw new IndexerException();
@@ -114,14 +123,14 @@ public class IndexWriter {
         	{
         		count++;
         		dictionary.put(tokenText,count);
-            	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1,docLength);
+            	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
             	docsList.add(termDocItem);
             	termIndex2.put(count, (ArrayList<TermDocumentFreq>) docsList);
         	}else
         	{
                 docsList = termIndex2.get(ind);
                 if(!docsList.contains(fileId)) {
-                	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1,docLength);
+                	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
                 	docsList.add(termDocItem);
                 	termIndex2.put(ind, (ArrayList<TermDocumentFreq>) docsList);
                 }
@@ -129,7 +138,6 @@ public class IndexWriter {
         }
         return count;
 	}
-
 	
 	/**
 	 * Method that indicates that all open resources must be closed
@@ -140,6 +148,10 @@ public class IndexWriter {
 		
 		//TODO
 		try {
+			documentsLengths.put("totalDocumentsLength", totalDocumentsLength);
+			documentsLengths.put("documentsCount", documentsCount);
+			documentsLengths.put("averageDocumentLength", totalDocumentsLength/documentsCount);
+			
 			ObjectOutputStream myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"termIndex"));
 			myOOStream.writeObject(termIndex);
 			myOOStream.close();
@@ -164,6 +176,11 @@ public class IndexWriter {
 			myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"placeDictionary"));
 			myOOStream.writeObject(placeDictionary);
 			myOOStream.close();
+			myOOStream = new ObjectOutputStream(new FileOutputStream(indexDir+File.separator+"documentsLengths"));
+			myOOStream.writeObject(documentsLengths);
+			myOOStream.close();
+			
+
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

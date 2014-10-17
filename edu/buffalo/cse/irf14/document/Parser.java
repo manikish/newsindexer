@@ -57,9 +57,6 @@ public class Parser {
 			String myCategory = myFields[myFields.length-2];
 			myDocument.setField(FieldNames.CATEGORY, myCategory.trim());
 			
-			//Added for testing
-//			System.out.println("File: "+myCategory.trim()+"\\"+myFileId.trim());
-			
 			 //read each line and populate Title and other fields
 			Scanner myScanner = new Scanner(new File(filename));
 			String myLine = new String();
