@@ -245,24 +245,15 @@ public class SearchRunner {
 			} else {
 				String[] queryIndexValues = nodeValue.contains(":")?nodeValue.split(":"): new String[] {nodeValue};
 				List<TermDocumentFreq> postings;
+				String termText = null;
+				IndexType indexType;
+
 				if(queryIndexValues.length==1) {
 					postings = indexReader.query(queryIndexValues[0],IndexType.TERM);
 					//convert MAP<String,Integer> to List<TermDocumentFreq> and return it.
-					Integer count = queryTermFrequency.get(queryIndexValues[0]);
-					if(count!=null){
-						count++;
-						queryTermFrequency.put(queryIndexValues[0], count);
-					}
-					else queryTermFrequency.put(queryIndexValues[0], 1);
-					
-					postings = indexReader.query(queryIndexValues[0], IndexType.TERM);
-					Integer documentFrequency = queryTermDocumentFrequency.get(queryIndexValues[0]);
-					if(documentFrequency == null){
-						queryTermDocumentFrequency.put(queryIndexValues[0], postings.size());
-					}
-
+					termText = queryIndexValues[0];
+					indexType = IndexType.TERM;
 				}else {
-					IndexType indexType;
 					if(queryIndexValues[0].equalsIgnoreCase("AUTHOR"))
 					{
 						indexType = IndexType.AUTHOR;
@@ -279,24 +270,31 @@ public class SearchRunner {
 					{
 						indexType = IndexType.TERM;
 					}
-					Integer count = queryTermFrequency.get(queryIndexValues[1]);
-					if(count!=null){
-						count++;
-						queryTermFrequency.put(queryIndexValues[1], count);
-					}
-					else queryTermFrequency.put(queryIndexValues[1], 1);
-					
-					postings = indexReader.query(queryIndexValues[1], indexType);
-					Integer documentFrequency = queryTermDocumentFrequency.get(queryIndexValues[1]);
-					if(documentFrequency == null){
-						queryTermDocumentFrequency.put(queryIndexValues[1], postings.size());
-					}
+					termText = queryIndexValues[1];
+
+				}
+				
+				Integer count = queryTermFrequency.get(termText);
+				if(count!=null){
+					count++;
+					queryTermFrequency.put(termText, count);
+				}
+				else queryTermFrequency.put(termText, 1);
+				
+				postings = indexReader.query(termText, indexType);
+				Integer documentFrequency = queryTermDocumentFrequency.get(termText);
+				if(documentFrequency == null){
+					queryTermDocumentFrequency.put(termText, postings.size());
 				}
 				for (TermDocumentFreq termDocumentFreq : postings) {
 					double tfidf = (1.0+Math.log10(termDocumentFreq.getFrequency().doubleValue()))*Math.log10(IndexReader.documentsLengths.get("documentsCount")/postings.size());
-					HashMap<String, Double> docTfidfMap = queryTermDocumentTDIDF.get(queryIndexValues[0]);
+					HashMap<String, Double> docTfidfMap = queryTermDocumentTDIDF.get(termText);
+					if(docTfidfMap == null)
+						{
+						docTfidfMap = new HashMap<String, Double>();
+						}
 					docTfidfMap.put(termDocumentFreq.getFileId(), tfidf);
-					queryTermDocumentTDIDF.put(queryIndexValues[0], docTfidfMap);
+					queryTermDocumentTDIDF.put(termText, docTfidfMap);
 					
 					resultPostings.add(termDocumentFreq.getFileId());
 				}
@@ -379,7 +377,9 @@ public class SearchRunner {
 //			String query = "place:paris AND government";
 //			String query = "blah blah blah";
 //			String query = "mitsubishi";
-			SearchRunner runner = new SearchRunner("Mani/Documents/MS\b CS/IR", "Macintosh\b HD/Users/Mani/Documents/MS\b CS/IR/training", 'Q', null);
+			String desktop = System.getProperty ("user.home") + "/Documents/MS\b CS/IR/";
+
+		SearchRunner runner = new SearchRunner(desktop, "Macintosh\b HD/Users/Mani/Documents/MS\b CS/IR/training", 'Q', null);
 			runner.query(query, ScoringModel.TFIDF);
 //		} catch (FileNotFoundException e) {
 //			// TODO Auto-generated catch block
