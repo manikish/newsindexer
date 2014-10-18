@@ -97,7 +97,12 @@ public class SearchRunner {
 			double docLengthByAverageDocLength = IndexReader.documentsLengths.get(fileId)/averageDocLength;
 			for (String queryTerm : queryTerms) {
 				int tf = queryTermFrequency.get(queryTerm);
-				okapiScore = okapiScore + (Math.log10(documentsCount/queryTermDocumentFrequency.get(queryTerm))*2.5*tf)/((1.5*(0.25+(0.75*docLengthByAverageDocLength)))+tf);
+				Integer df = queryTermDocumentFrequency.get(queryTerm);
+				double logFactor = 1.0;
+				if(df!=null){ 
+					logFactor = Math.log10(documentsCount/df);
+				}
+				okapiScore = okapiScore + (logFactor*2.5*tf)/((1.5*(0.25+(0.75*docLengthByAverageDocLength)))+tf);
 			}
 			
 			List<String> list = topResults.get(okapiScore);
@@ -154,7 +159,9 @@ public class SearchRunner {
 				lengthOfDocumentVector = lengthOfDocumentVector+(docTfidf*docTfidf);
 				finalTfidf = finalTfidf+tfidf*docTfidf;
 			}
-			finalTfidf = finalTfidf/(Math.sqrt(lengthOfQueryVector)*Math.sqrt(lengthOfDocumentVector)*IndexReader.documentsLengths.get(fileId));
+//			finalTfidf = finalTfidf/(Math.sqrt(lengthOfQueryVector)*Math.sqrt(lengthOfDocumentVector)*IndexReader.documentsLengths.get(fileId));
+			finalTfidf = finalTfidf/(Math.sqrt(lengthOfQueryVector)*Math.sqrt(lengthOfDocumentVector));
+
 			List<String> list = topResults.get(finalTfidf);
 			if(list == null){
 				list = new ArrayList<String>();
@@ -444,7 +451,7 @@ public class SearchRunner {
 //			String query = "place:tokyo NOT bank";
 //			String query = "french economy employment government policies";
 //			String query = "author:torday AND (debt OR currency)";
-			String query = "\"Adobe Resources\"";
+			String query = "Adobe";
 //			String query = "author:miller OR miller";
 //			String query = "category:coffee beans";
 //			String query = "place:washington AND federal treasury";
@@ -454,7 +461,7 @@ public class SearchRunner {
 			String desktop = System.getProperty ("user.home") + "/Documents/MSCS/IR/";
 
 	        SearchRunner runner = new SearchRunner(desktop, "Macintosh\b HD/Users/Mani/Documents/MSCS/IR/training", 'Q', null);
-	        runner.query(query, ScoringModel.OKAPI);
+	        runner.query(query, ScoringModel.TFIDF);
 //		} catch (FileNotFoundException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
