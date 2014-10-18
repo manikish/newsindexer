@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -309,7 +310,9 @@ public class SearchRunner {
 				}
 			}
 		}
-		return resultPostings;
+		String[] r=resultPostings.toArray(new String[] {""});
+		Arrays.sort(r);
+		return Arrays.asList(r);
 	}
 
 	
@@ -388,7 +391,7 @@ public class SearchRunner {
 //			String query = "mitsubishi";
 			String desktop = System.getProperty ("user.home") + "/Documents/MSCS/IR/";
 
-		SearchRunner runner = new SearchRunner(desktop, "Macintosh\b HD/Users/Mani/Documents/MSCS/IR/training", 'Q', null);
+		SearchRunner runner = new SearchRunner("D:\\SourceTree\\", "D:\\SourceTree\\training", 'Q', null);
 			runner.query(query, ScoringModel.TFIDF);
 //		} catch (FileNotFoundException e) {
 //			// TODO Auto-generated catch block
