@@ -275,6 +275,7 @@ public class IndexReader {
 			myFilter = myFilter.getNextFilter();
 		}
 		List<TermDocumentFreq> postingsList;
+		myStream.reset();
 		while(myStream.hasNext()) {
 			Token myToken = myStream.next();
 			String queryTerm = myToken.getTermText();

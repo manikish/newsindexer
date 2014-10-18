@@ -139,7 +139,7 @@ public class SearchRunner {
 		// TODO Auto-generated method stub
 		Tree node = queryTree;
 		List<String> resultPostings = new ArrayList<String>();
-		while(node!=null) {
+		if(node!=null) {
 			List<String> leftPostings = getPostingsList(node.getLeftLeaf());
 			List<String> rightPostings = getPostingsList(node.getRightLeaf());
 			String nodeValue = node.getNodeValue();
@@ -155,15 +155,18 @@ public class SearchRunner {
 					//perform AND operation on leftPostings and rightPostings
 					while(leftIterator.hasNext() || rightIterator.hasNext())
 					{
-						if(shouldLeftPointerMove)
-						{
-							leftDoc = leftIterator.next();
-							shouldLeftPointerMove = false;
+						if(shouldLeftPointerMove){
+							if(leftIterator.hasNext()){
+								leftDoc = leftIterator.next();
+								shouldLeftPointerMove = false;
+							}else break;
 						}
 						if(shouldrightPointerMove)
 						{
-							rightDoc = rightIterator.next();
-							shouldrightPointerMove = false;
+							if(rightIterator.hasNext()){
+								rightDoc = rightIterator.next();
+								shouldrightPointerMove = false;
+							}else break;
 						}
 						Integer leftFileId =  Integer.parseInt(leftDoc);
 						Integer rightFileId =  Integer.parseInt(rightDoc);
@@ -184,15 +187,18 @@ public class SearchRunner {
 					//perform OR operation on leftPostings and rightPostings
 					while(leftIterator.hasNext() || rightIterator.hasNext())
 					{
-						if(shouldLeftPointerMove)
-						{
-							leftDoc = leftIterator.next();
-							shouldLeftPointerMove = false;
+						if(shouldLeftPointerMove){
+							if(leftIterator.hasNext()){
+								leftDoc = leftIterator.next();
+								shouldLeftPointerMove = false;
+							}else break;
 						}
 						if(shouldrightPointerMove)
 						{
-							rightDoc = rightIterator.next();
-							shouldrightPointerMove = false;
+							if(rightIterator.hasNext()){
+								rightDoc = rightIterator.next();
+								shouldrightPointerMove = false;
+							}else break;
 						}
 						Integer leftFileId =  Integer.parseInt(leftDoc);
 						Integer rightFileId =  Integer.parseInt(rightDoc);						
@@ -215,15 +221,18 @@ public class SearchRunner {
 					//perform NOT operation on leftPostings and rightPostings
 					while(leftIterator.hasNext() || rightIterator.hasNext())
 					{
-						if(shouldLeftPointerMove)
-						{
-							leftDoc = leftIterator.next();
-							shouldLeftPointerMove = false;
+						if(shouldLeftPointerMove){
+							if(leftIterator.hasNext()){
+								leftDoc = leftIterator.next();
+								shouldLeftPointerMove = false;
+							}else break;
 						}
 						if(shouldrightPointerMove)
 						{
-							rightDoc = rightIterator.next();
-							shouldrightPointerMove = false;
+							if(rightIterator.hasNext()){
+								rightDoc = rightIterator.next();
+								shouldrightPointerMove = false;
+							}else break;
 						}
 						Integer leftFileId =  Integer.parseInt(leftDoc);
 						Integer rightFileId =  Integer.parseInt(rightDoc);
@@ -377,9 +386,9 @@ public class SearchRunner {
 //			String query = "place:paris AND government";
 //			String query = "blah blah blah";
 //			String query = "mitsubishi";
-			String desktop = System.getProperty ("user.home") + "/Documents/MS\b CS/IR/";
+			String desktop = System.getProperty ("user.home") + "/Documents/MSCS/IR/";
 
-		SearchRunner runner = new SearchRunner(desktop, "Macintosh\b HD/Users/Mani/Documents/MS\b CS/IR/training", 'Q', null);
+		SearchRunner runner = new SearchRunner(desktop, "Macintosh\b HD/Users/Mani/Documents/MSCS/IR/training", 'Q', null);
 			runner.query(query, ScoringModel.TFIDF);
 //		} catch (FileNotFoundException e) {
 //			// TODO Auto-generated catch block
