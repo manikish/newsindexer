@@ -87,18 +87,18 @@ public class IndexWriter {
 				docLength = docLength + myStream.getSize();
 				switch (fieldName) {
 				case AUTHOR:
-					authorCount = write(authorDictionary, authorIndex, authorCount, true);
+					authorCount = write(authorDictionary, authorIndex, authorCount);
 					break;
 				case CATEGORY:
-					categoryCount = write(categoryDictionary, categoryIndex, categoryCount, false);
+					categoryCount = write(categoryDictionary, categoryIndex, categoryCount);
 					break;
 				case PLACE:
-					placeCount = write(placeDictionary, placeIndex, placeCount,false);
+					placeCount = write(placeDictionary, placeIndex, placeCount);
 					break;
 				case FILEID:
 					break;
 				default:
-					termCount = write(termDictionary, termIndex, termCount,false);
+					termCount = write(termDictionary, termIndex, termCount);
 					break;
 				}
 			}		
@@ -110,17 +110,8 @@ public class IndexWriter {
 		}
 	}
 	
-	public Integer write(HashMap<String, Integer> dictionary,HashMap<Integer, List<TermDocumentFreq>> termIndex2, Integer count,
-			boolean isAuthor) {
+	public Integer write(HashMap<String, Integer> dictionary,HashMap<Integer, List<TermDocumentFreq>> termIndex2, Integer count) {
 		// TODO Auto-generated method stub
-		myStream.reset();
-		if(isAuthor) {
-			while(myStream.hasNext()) {
-				Token token = myStream.next();
-	            String tokenText = token.getTermText();
-	            token.setTermText(tokenText.toLowerCase());
-			}
-		}
 		myStream.reset();
         while(myStream.hasNext())
         {

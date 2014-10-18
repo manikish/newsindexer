@@ -50,11 +50,11 @@ public class QueryParser {
 				toStringOfThisQuery.append("[");
 				count++;
 				continue;
-			}else if(queryStringIndex==-1 && userQuery.charAt(i)!=' '){
+			}else if(queryStringIndex==-1 && userQuery.charAt(i)!=' ' && userQuery.charAt(i)!=')'){
 				queryStringIndex = i;
 				continue;
 			}			
-			if(userQuery.charAt(i)==' ') {
+			if(queryStringIndex!=-1 && userQuery.charAt(i)==' ') {
 				String myString =userQuery.substring(queryStringIndex, i);
 				if(!quotes && myString.contains(QUOTES))
 					quotes = true;
@@ -117,43 +117,45 @@ public class QueryParser {
 			}
 			else if(userQuery.charAt(i)==')') {
 				String myString = null;
-				if(quotes && (myString=userQuery.substring(queryStringIndex, i)).contains(QUOTES)) {
-					if(myString.contains(COLON)) {
-						queryStringList.add(myString);
-						toStringOfThisQuery.append(myString+" ");
+				if(queryStringIndex!=-1) {
+					if(quotes && (myString=userQuery.substring(queryStringIndex, i)).contains(QUOTES)) {
+						if(myString.contains(COLON)) {
+							queryStringList.add(myString);
+							toStringOfThisQuery.append(myString+" ");
+						}
+						else {
+							queryStringList.add(defaultIndex+myString);
+							toStringOfThisQuery.append(defaultIndex+myString+" ");
+						}
+						quotes = false;
+						if(freeTextQueryTerms) {
+							operatorStack.push(defaultOperator);
+							toStringOfThisQuery.append(defaultOperator+" ");
+						}
+					}else {
+						String temp = userQuery.substring(queryStringIndex, i).contains(COLON)?userQuery.substring(queryStringIndex, i):
+							defaultIndex+userQuery.substring(queryStringIndex, i);
+						queryStringList.add(temp);
+						toStringOfThisQuery.append(temp+" ");
 					}
-					else {
-						queryStringList.add(defaultIndex+myString);
-						toStringOfThisQuery.append(defaultIndex+myString+" ");
+					
+					if(i!=userQuery.length()-1) {
+						if(userQuery.charAt(++i)==' ') {
+							queryStringIndex=-1;
+						}else {
+							queryStringIndex=i;
+						}
 					}
-					quotes = false;
+					for(int j=0;j<termsInBraces[count-1];j++) {
+						queryStringList.add(constructNode(operatorStack.pop(), 
+								(Object)queryStringList.remove(queryStringList.size()-1), 
+								(Object)queryStringList.remove(queryStringList.size()-1)));
+					}
+					
 					if(freeTextQueryTerms) {
 						operatorStack.push(defaultOperator);
 						toStringOfThisQuery.append(defaultOperator+" ");
 					}
-				}else {
-					String temp = userQuery.substring(queryStringIndex, i).contains(COLON)?userQuery.substring(queryStringIndex, i):
-						defaultIndex+userQuery.substring(queryStringIndex, i);
-					queryStringList.add(temp);
-					toStringOfThisQuery.append(temp+" ");
-				}
-				
-				if(i!=userQuery.length()-1) {
-					if(userQuery.charAt(++i)==' ') {
-						queryStringIndex=-1;
-					}else {
-						queryStringIndex=i;
-					}
-				}
-				for(int j=0;j<termsInBraces[count-1];j++) {
-					queryStringList.add(constructNode(operatorStack.pop(), 
-							(Object)queryStringList.remove(queryStringList.size()-1), 
-							(Object)queryStringList.remove(queryStringList.size()-1)));
-				}
-				
-				if(freeTextQueryTerms) {
-					operatorStack.push(defaultOperator);
-					toStringOfThisQuery.append(defaultOperator+" ");
 				}
 				termsInBraces[count-1]=0;
 				count--;
@@ -173,7 +175,18 @@ public class QueryParser {
 					queryStringList.add(myString);
 					toStringOfThisQuery.append(myString);
 				}
-				else {
+				else if(quotes) {
+					quotedQueryTerm = quotedQueryTerm+" "+myString;
+					if(quotedQueryTerm.contains(COLON)) {
+						queryStringList.add(quotedQueryTerm);
+						toStringOfThisQuery.append(quotedQueryTerm);
+					} else {
+						queryStringList.add(defaultIndex+quotedQueryTerm);
+						toStringOfThisQuery.append(defaultIndex+quotedQueryTerm);
+					}
+					
+				}
+				else{
 					queryStringList.add(defaultIndex+myString);
 					toStringOfThisQuery.append(defaultIndex+myString);
 				}

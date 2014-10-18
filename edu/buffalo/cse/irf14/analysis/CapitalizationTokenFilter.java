@@ -33,16 +33,18 @@ public class CapitalizationTokenFilter extends TokenFilter {
 	@Override
 	public void perform() {
 		TokenStream myStream = getStream();
-		if(!isStreamAnalyzed)
-			analyzeStream(myStream);
+		myStream.reset();
+		/*if(!isStreamAnalyzed)
+			analyzeStream(myStream);*/
 		while(myStream.hasNext()) {
 			Token myToken = myStream.next();
-			if (myToken.getRetainText() != null && !myToken.getRetainText()) {
+			myToken.setTermText(myToken.getTermText().toLowerCase());
+			/*if (myToken.getRetainText() != null && !myToken.getRetainText()) {
 				String text = myToken.getTermText();
 				text = text.replace(text.charAt(0), (char) (text.charAt(0) + 32));
 				myToken.setTermText(text);
 //				System.out.println(text);
-			}
+			}*/
 		}		
 	}
 
