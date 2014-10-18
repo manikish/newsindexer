@@ -254,6 +254,21 @@ public class IndexReader {
 		myTokenList.add(new Token(term));
 		TokenStream myStream = new TokenStream((ArrayList<Token>) myTokenList);
 		AnalyzerFactory myAnalyzerFactory = AnalyzerFactory.getInstance();
+		switch(type)
+		{
+		case TERM:
+			names = FieldNames.CONTENT;
+			break;
+		case PLACE:
+			names = FieldNames.PLACE;
+			break;
+		case AUTHOR:
+			names = FieldNames.AUTHOR;
+			break;
+		case CATEGORY:
+			names = FieldNames.CATEGORY;
+			break;
+		}
 		TokenFilter myFilter = (TokenFilter) myAnalyzerFactory.getAnalyzerForField(names, myStream);
 		while(myFilter!=null) {
 			myFilter.perform();

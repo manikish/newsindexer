@@ -83,6 +83,12 @@ public class SearchRunner {
 		}
 	}
 	
+	private HashMap<String,Double> getOKAPITopResults(List<String> results)
+	{
+		
+		return null;
+	}
+	
 	private HashMap<String,Double> getTFIDFTopResults(List<String> results)
 	{
 		Set<String> queryTerms = queryTermFrequency.keySet();
@@ -242,6 +248,19 @@ public class SearchRunner {
 				if(queryIndexValues.length==1) {
 					postings = indexReader.query(queryIndexValues[0],IndexType.TERM);
 					//convert MAP<String,Integer> to List<TermDocumentFreq> and return it.
+					Integer count = queryTermFrequency.get(queryIndexValues[0]);
+					if(count!=null){
+						count++;
+						queryTermFrequency.put(queryIndexValues[0], count);
+					}
+					else queryTermFrequency.put(queryIndexValues[0], 1);
+					
+					postings = indexReader.query(queryIndexValues[0], IndexType.TERM);
+					Integer documentFrequency = queryTermDocumentFrequency.get(queryIndexValues[0]);
+					if(documentFrequency == null){
+						queryTermDocumentFrequency.put(queryIndexValues[0], postings.size());
+					}
+
 				}else {
 					IndexType indexType;
 					if(queryIndexValues[0].equalsIgnoreCase("AUTHOR"))
@@ -260,17 +279,17 @@ public class SearchRunner {
 					{
 						indexType = IndexType.TERM;
 					}
-					Integer count = queryTermFrequency.get(queryIndexValues[0]);
-					if(count>0){
+					Integer count = queryTermFrequency.get(queryIndexValues[1]);
+					if(count!=null){
 						count++;
-						queryTermFrequency.put(queryIndexValues[0], count);
+						queryTermFrequency.put(queryIndexValues[1], count);
 					}
-					else queryTermFrequency.put(queryIndexValues[0], 1);
+					else queryTermFrequency.put(queryIndexValues[1], 1);
 					
 					postings = indexReader.query(queryIndexValues[1], indexType);
-					Integer documentFrequency = queryTermDocumentFrequency.get(queryIndexValues[0]);
+					Integer documentFrequency = queryTermDocumentFrequency.get(queryIndexValues[1]);
 					if(documentFrequency == null){
-						queryTermDocumentFrequency.put(queryIndexValues[0], postings.size());
+						queryTermDocumentFrequency.put(queryIndexValues[1], postings.size());
 					}
 				}
 				for (TermDocumentFreq termDocumentFreq : postings) {
@@ -360,7 +379,7 @@ public class SearchRunner {
 //			String query = "place:paris AND government";
 //			String query = "blah blah blah";
 //			String query = "mitsubishi";
-			SearchRunner runner = new SearchRunner("Users/Mani/Documents/MS CS/IR/", "Users/Mani/Documents/MS CS/IR/training", 'Q', null);
+			SearchRunner runner = new SearchRunner("Mani/Documents/MS\b CS/IR", "Macintosh\b HD/Users/Mani/Documents/MS\b CS/IR/training", 'Q', null);
 			runner.query(query, ScoringModel.TFIDF);
 //		} catch (FileNotFoundException e) {
 //			// TODO Auto-generated catch block
