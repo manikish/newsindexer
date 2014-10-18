@@ -305,7 +305,7 @@ public class IndexReader {
 				break;
 
 			case AUTHOR:
-				if(authorDictionary.get(queryTerm)==null) {
+				if(authorDictionary.get(queryTerm.toLowerCase())==null) {
 					return null;
 				}
 				postingsList = authorIndex.get(authorDictionary.get(queryTerm));

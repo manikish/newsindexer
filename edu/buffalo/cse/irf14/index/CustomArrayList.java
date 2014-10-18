@@ -15,7 +15,7 @@ public class CustomArrayList extends ArrayList<TermDocumentFreq> implements Seri
 		// TODO Auto-generated method stub
 		TermDocumentFreq term = null;        			
 		for(int i=0;i<this.size();i++) {
-			if((term=this.get(i)).getFileId()==o) {
+			if((term=this.get(i)).getFileId().equalsIgnoreCase((String)o)) {
 				term.setFrequency(term.getFrequency()+1);
 				return true;        					
 			}
