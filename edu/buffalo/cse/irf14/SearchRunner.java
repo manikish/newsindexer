@@ -71,6 +71,7 @@ public class SearchRunner {
 	 */
 	public void query(String userQuery, ScoringModel model) throws FileNotFoundException {
 		//TODO: IMPLEMENT THIS METHOD
+        timeTaken = System.currentTimeMillis();
 		Query query = QueryParser.parse(userQuery, "OR");
 		List<String> resultPostings = getPostingsList(query.getQueryTree());
 		if(resultPostings != null)
@@ -107,9 +108,14 @@ public class SearchRunner {
 								title = title.append(myLine);
 						 }
 						 for (String queryTerm : queryTerms) {
+							 int i = 0;
 							 if(myLine.contains(queryTerm))
 							 {
-								 snippet.append(myLine);
+								 snippet.append(myLine+"...");
+								 if(i>2){
+									 break;
+								 }
+								 i++;
 							 }
 						 }
 					}
@@ -585,10 +591,9 @@ public class SearchRunner {
 		    String query = "factory workers lay-offs lockouts strikes";
 			String desktop = System.getProperty ("user.home") + "/Documents/MSCS/";
 	        try {
-	        SearchRunner runner = new SearchRunner("D:\\SourceTree", "D:\\SourceTree\\Corpus", 'Q', new PrintStream(new File("stream.txt")));
-	        timeTaken = System.currentTimeMillis();
-//				runner.query(query, ScoringModel.OKAPI);
-	        runner.query(new File("D:\\SourceTree\\queries.txt"));
+	            SearchRunner runner = new SearchRunner(desktop+"/IR", desktop+"/Corpus", 'Q', new PrintStream(new File(desktop+"stream.txt")));
+	            runner.query(query, ScoringModel.OKAPI);
+//	        runner.query(new File("D:\\SourceTree\\queries.txt"));
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
