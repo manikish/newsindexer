@@ -196,7 +196,11 @@ public class SearchRunner {
 			Double lengthOfDocumentVector = 0.0;
 					
 			for (String queryTerm : queryTerms) {
-				double tfidf = (1.0+Math.log10(queryTermFrequency.get(queryTerm).doubleValue()))*Math.log10(documentsCount/queryTermDocumentFrequency.get(queryTerm));
+				Integer df = queryTermDocumentFrequency.get(queryTerm);
+				if(df == null){
+					continue;
+				}
+				double tfidf = (1.0+Math.log10(queryTermFrequency.get(queryTerm).doubleValue()))*Math.log10(documentsCount/df);
 
 				lengthOfQueryVector = lengthOfQueryVector+(tfidf*tfidf);
 
@@ -252,6 +256,22 @@ public class SearchRunner {
 			List<String> rightPostings = getPostingsList(node.getRightLeaf());
 			String nodeValue = node.getNodeValue();
 			if(QueryParser.OPERANDS.contains(nodeValue)) {
+				if(leftPostings==null){
+					if("AND".equals(nodeValue)||"NOT".equals(nodeValue)){
+						return null;
+					}else{
+						return rightPostings;
+					}
+				}
+				if(rightPostings == null){
+					if("AND".equals(nodeValue)){
+						return null;
+					}else 
+					{
+						return leftPostings;
+					}
+				}
+
 				ListIterator<String> leftIterator = leftPostings.listIterator();
 				ListIterator<String> rightIterator = rightPostings.listIterator();
 				String leftDoc = null;
@@ -546,7 +566,7 @@ public class SearchRunner {
 //			String query = "\"hello computer world\" Category:\"tree parser\" ((first NOT second) AND third)";
 //			String query = "(Love NOT War) AND Category:(movies NOT crime)";
 //			String query = "Category:War AND Author:Dutt AND Place:(Baghdad AND Mysore) detainees rebels";
-			String query = "author:\"Patti Domm\" AND american express";
+//			String query = "author:\"Patti Domm\" AND american express";
 //			String query = "author:(brian OR richard) AND place:(paris OR washington)";
 //			String query = "author:minkwoski OR disney";
 //			String query = "place:tokyo NOT bank";
@@ -559,9 +579,11 @@ public class SearchRunner {
 //			String query = "place:paris AND government";
 //			String query = "blah blah blah";
 //			String query = "mitsubishi";
-			String desktop = System.getProperty ("user.home") + "/Documents/MSCS/IR/";
+//		    String query = "trade deficit foreign exchange trade surplus balance of trade";
+		    String query = "factory workers lay-offs lockouts strikes";
+			String desktop = System.getProperty ("user.home") + "/Documents/MSCS/";
 	        try {
-	        SearchRunner runner = new SearchRunner(desktop, desktop+"/Corpus", 'Q', new PrintStream(new File(desktop+"stream.txt")));
+	        SearchRunner runner = new SearchRunner(desktop+"/IR", desktop+"/Corpus", 'Q', new PrintStream(new File(desktop+"stream.txt")));
 	        timeTaken = System.currentTimeMillis();
 				runner.query(query, ScoringModel.OKAPI);
 			} catch (FileNotFoundException e) {
