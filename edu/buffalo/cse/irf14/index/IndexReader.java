@@ -231,6 +231,7 @@ public class IndexReader {
 				for(int i=0; i<k; i++) {
 					myList.add(temp.get(i));
 				}
+				
 			}			
 		}
 		return myList;
@@ -278,7 +279,7 @@ public class IndexReader {
 		myStream.reset();
 		while(myStream.hasNext()) {
 			Token myToken = myStream.next();
-			String queryTerm = myToken.getTermText();
+			String queryTerm = myToken.getTermText().toLowerCase();
 			switch(type)
 			{
 			case TERM:
@@ -305,7 +306,7 @@ public class IndexReader {
 				break;
 
 			case AUTHOR:
-				if(authorDictionary.get(queryTerm.toLowerCase())==null) {
+				if(authorDictionary.get(queryTerm)==null) {
 					return null;
 				}
 				postingsList = authorIndex.get(authorDictionary.get(queryTerm));

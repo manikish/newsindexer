@@ -34,8 +34,9 @@ public class CapitalizationTokenFilter extends TokenFilter {
 	public void perform() {
 		TokenStream myStream = getStream();
 		myStream.reset();
-		/*if(!isStreamAnalyzed)
-			analyzeStream(myStream);*/
+		if(!isStreamAnalyzed)
+			analyzeStream(myStream);
+		myStream.reset();
 		while(myStream.hasNext()) {
 			Token myToken = myStream.next();
 			myToken.setTermText(myToken.getTermText().toLowerCase());

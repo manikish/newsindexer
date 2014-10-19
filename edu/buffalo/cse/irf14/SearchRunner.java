@@ -64,6 +64,7 @@ public class SearchRunner {
 	public void query(String userQuery, ScoringModel model) {
 		//TODO: IMPLEMENT THIS METHOD
 		Query query = QueryParser.parse(userQuery, "OR");
+		System.out.println(query.toString());
 		List<String> resultPostings = getPostingsList(query.getQueryTree());
 		if(resultPostings != null)
 		{
@@ -130,6 +131,7 @@ public class SearchRunner {
 					DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(temp.get(i), key);
 					top10Results.add(doc);
 				}
+				break;
 			}			
 		}
 
@@ -188,6 +190,7 @@ public class SearchRunner {
 					DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(temp.get(i), key);
 					top10Results.add(doc);
 				}
+				break;
 			}			
 		}
 		return top10Results;
@@ -319,8 +322,6 @@ public class SearchRunner {
 				IndexType indexType;
 
 				if(queryIndexValues.length==1) {
-					postings = indexReader.query(queryIndexValues[0],IndexType.TERM);
-					//convert MAP<String,Integer> to List<TermDocumentFreq> and return it.
 					termText = queryIndexValues[0];
 					indexType = IndexType.TERM;
 				}else {
@@ -445,13 +446,13 @@ public class SearchRunner {
 //			String query = "\"hello computer world\" Category:\"tree parser\" ((first NOT second) AND third)";
 //			String query = "(Love NOT War) AND Category:(movies NOT crime)";
 //			String query = "Category:War AND Author:Dutt AND Place:(Baghdad AND Mysore) detainees rebels";
-//			String query = "author:\"Patti Domm\" AND american express";
+			String query = "author:\"Patti Domm\" AND american express";
 //			String query = "author:(brian OR richard) AND place:(paris OR washington)";
 //			String query = "author:minkwoski OR disney";
 //			String query = "place:tokyo NOT bank";
 //			String query = "french economy employment government policies";
 //			String query = "author:torday AND (debt OR currency)";
-			String query = "Adobe";
+//			String query = "Adobe";
 //			String query = "author:miller OR miller";
 //			String query = "category:coffee beans";
 //			String query = "place:washington AND federal treasury";
@@ -462,6 +463,7 @@ public class SearchRunner {
 
 	        SearchRunner runner = new SearchRunner(desktop, "Macintosh\b HD/Users/Mani/Documents/MSCS/IR/training", 'Q', null);
 	        runner.query(query, ScoringModel.TFIDF);
+	        
 //		} catch (FileNotFoundException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();

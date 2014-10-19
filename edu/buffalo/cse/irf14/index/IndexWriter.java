@@ -87,18 +87,18 @@ public class IndexWriter {
 				docLength = docLength + myStream.getSize();
 				switch (fieldName) {
 				case AUTHOR:
-					authorCount = write(authorDictionary, authorIndex, authorCount);
+					authorCount = write(authorDictionary, authorIndex, authorCount, true);
 					break;
 				case CATEGORY:
-					categoryCount = write(categoryDictionary, categoryIndex, categoryCount);
+					categoryCount = write(categoryDictionary, categoryIndex, categoryCount, false);
 					break;
 				case PLACE:
-					placeCount = write(placeDictionary, placeIndex, placeCount);
+					placeCount = write(placeDictionary, placeIndex, placeCount, false);
 					break;
 				case FILEID:
 					break;
 				default:
-					termCount = write(termDictionary, termIndex, termCount);
+					termCount = write(termDictionary, termIndex, termCount, false);
 					break;
 				}
 			}		
@@ -110,7 +110,7 @@ public class IndexWriter {
 		}
 	}
 	
-	public Integer write(HashMap<String, Integer> dictionary,HashMap<Integer, List<TermDocumentFreq>> termIndex2, Integer count) {
+	public Integer write(HashMap<String, Integer> dictionary,HashMap<Integer, List<TermDocumentFreq>> termIndex2, Integer count, boolean isAuthor) {
 		// TODO Auto-generated method stub
 		myStream.reset();
         while(myStream.hasNext())
@@ -136,7 +136,35 @@ public class IndexWriter {
                 }
         	}        	        	
         }
-        return count;
+        if(isAuthor){
+            myStream.reset();
+        	String tokenText = "";
+            while(myStream.hasNext())
+            {
+            	Token token = myStream.next();
+                tokenText = tokenText+token.getTermText()+" ";
+            }
+            tokenText = tokenText.trim();
+            Integer ind = dictionary.get(tokenText);
+			List<TermDocumentFreq> docsList = new CustomArrayList();
+        	if(ind==null)
+        	{
+        		count++;
+        		dictionary.put(tokenText,count);
+            	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
+            	docsList.add(termDocItem);
+            	termIndex2.put(count, (ArrayList<TermDocumentFreq>) docsList);
+        	}else
+        	{
+                docsList = termIndex2.get(ind);
+                if(!docsList.contains(fileId)) {
+                	TermDocumentFreq termDocItem = new TermDocumentFreq(fileId, 1);
+                	docsList.add(termDocItem);
+                	termIndex2.put(ind, (ArrayList<TermDocumentFreq>) docsList);
+                }
+        	}        	        	
+        }
+             return count;
 	}
 	
 	/**
