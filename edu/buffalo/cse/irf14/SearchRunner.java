@@ -12,9 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 
+import edu.buffalo.cse.irf14.document.FieldNames;
 import edu.buffalo.cse.irf14.index.IndexReader;
 import edu.buffalo.cse.irf14.index.IndexType;
 import edu.buffalo.cse.irf14.index.TermDocumentFreq;
@@ -41,6 +43,7 @@ public class SearchRunner {
 
 	
 	private double documentsCount;
+	private static double timeTaken;
 	/**
 	 * Default (and only public) constuctor
 	 * @param indexDir : The directory where the index resides
@@ -64,11 +67,11 @@ public class SearchRunner {
 	 * Method to execute given query in the Q mode
 	 * @param userQuery : Query to be parsed and executed
 	 * @param model : Scoring Model to use for ranking results
+	 * @throws FileNotFoundException 
 	 */
-	public void query(String userQuery, ScoringModel model) {
+	public void query(String userQuery, ScoringModel model) throws FileNotFoundException {
 		//TODO: IMPLEMENT THIS METHOD
 		Query query = QueryParser.parse(userQuery, "OR");
-		System.out.println(query.toString());
 		List<String> resultPostings = getPostingsList(query.getQueryTree());
 		if(resultPostings != null)
 		{
@@ -83,12 +86,47 @@ public class SearchRunner {
 				break;
 			}
 			
+			stream.println(userQuery);
+			timeTaken = System.currentTimeMillis()-timeTaken;
+			stream.println("Time Taken: "+timeTaken);
+			stream.println();
+
+			int rank = 1;
 			for (DocumentWithTfIdfWeight documentWithTfIdfWeight : results) {
-				System.out.println("FileId: "+documentWithTfIdfWeight.getFileId()+" TF-IDF: "+documentWithTfIdfWeight.getTfIdf());
+				stream.println(rank);
+				rank++;
+				Scanner myScanner = new Scanner(new File(corpusDir+File.separator+documentWithTfIdfWeight.getFileId()));
+				StringBuffer title = new StringBuffer();
+				StringBuffer snippet = new StringBuffer();
+				Set<String> queryTerms = queryTermFrequency.keySet();
+				String myLine = new String();
+				boolean isTitlePopulated = false;
+				while(myScanner.hasNextLine()) {
+					if((myLine = myScanner.nextLine()).trim().length()!=0) {
+						 if (!isTitlePopulated) {
+								title = title.append(myLine);
+						 }
+						 for (String queryTerm : queryTerms) {
+							 if(myLine.contains(queryTerm))
+							 {
+								 snippet.append(myLine);
+							 }
+						 }
+					}
+					else if (title.length() != 0)
+					{
+						isTitlePopulated = true;
+					}
+				}
+				myScanner.close();
+				stream.println("Title:"+title);
+				stream.println("Snippet: "+snippet);
+				stream.println("Relevancy: "+documentWithTfIdfWeight.getTfIdf());
+				stream.println();
 			}
 		}
 		else{
-			System.out.println("No Results");
+			stream.println("No Results");
 		}
 	}
 	
@@ -119,20 +157,25 @@ public class SearchRunner {
 		}
 		
 		Set<Double> finalTfidfs = topResults.descendingKeySet();
+		double normalizingFactor = 0.0;
+		for (Double double1 : finalTfidfs) {
+			normalizingFactor = normalizingFactor+(double1*double1);
+		}
+		normalizingFactor = Math.sqrt(normalizingFactor);
 		List<DocumentWithTfIdfWeight> top10Results = new ArrayList<DocumentWithTfIdfWeight>(); 
 		int k =10;
 		for(Double key: finalTfidfs) {
 			List<String> temp = topResults.get(key);
 			if(k >= temp.size()) {
 				for (String fileId : temp) {
-					DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(fileId, key);
+					DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(fileId, key/normalizingFactor);
 					top10Results.add(doc);
 				}
 				k = k- temp.size();
 			}
 			else {
 				for(int i=0; i<k; i++) {
-					DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(temp.get(i), key);
+					DocumentWithTfIdfWeight doc = new DocumentWithTfIdfWeight(temp.get(i), key/normalizingFactor);
 					top10Results.add(doc);
 				}
 				break;
@@ -517,9 +560,14 @@ public class SearchRunner {
 //			String query = "blah blah blah";
 //			String query = "mitsubishi";
 			String desktop = System.getProperty ("user.home") + "/Documents/MSCS/IR/";
-
-	        SearchRunner runner = new SearchRunner(desktop, "Macintosh\b HD/Users/Mani/Documents/MSCS/IR/training", 'Q', null);
-	        runner.query(query, ScoringModel.TFIDF);
+	        try {
+	        SearchRunner runner = new SearchRunner(desktop, desktop+"/Corpus", 'Q', new PrintStream(new File(desktop+"stream.txt")));
+	        timeTaken = System.currentTimeMillis();
+				runner.query(query, ScoringModel.OKAPI);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	        
 //		} catch (FileNotFoundException e) {
 //			// TODO Auto-generated catch block
