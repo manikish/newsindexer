@@ -121,7 +121,8 @@ public class SearchRunner {
 				myScanner.close();
 				stream.println("Title:"+title);
 				stream.println("Snippet: "+snippet);
-				stream.println("Relevancy: "+documentWithTfIdfWeight.getTfIdf());
+				stream.print("Relevancy: ");
+				stream.printf("%.5f",documentWithTfIdfWeight.getTfIdf());
 				stream.println();
 			}
 		}
@@ -460,19 +461,19 @@ public class SearchRunner {
 		//TODO: IMPLEMENT THIS METHOD
 		class Temp{
 			String queryId;
-			StringBuffer queryText;
+			StringBuffer queryText= new StringBuffer();
 		}
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(queryFile));
-			String line = br.readLine();
+			String line =null;
 			Temp query = null;
 			List<Temp> queriesInFile = new ArrayList<Temp>();
-			while(line!=null) {
+			while((line= br.readLine())!=null) {
 				if(line.contains("numQueries")) {
 					continue;
 				}else if(line.startsWith("Q_")) {
 					query = new Temp();
-					String[] queryVariables = line.split("{");
+					String[] queryVariables = line.split("\\{");
 					if(queryVariables.length>1) {
 						query.queryId = queryVariables[0];
 					}
@@ -496,7 +497,8 @@ public class SearchRunner {
 					stream.print(s.queryId+"{");
 					List<DocumentWithTfIdfWeight> results = getTFIDFTopResults(resultPostings);					
 					for (int i=0;i<results.size();i++) {
-						stream.print(results.get(i).getFileId()+"#"+results.get(i).getTfIdf());
+						stream.print(results.get(i).getFileId()+"#");
+						stream.printf("%.5f",results.get(i).getTfIdf());
 						if(i!=results.size()-1) {
 							stream.print(", ");
 						}
@@ -583,9 +585,10 @@ public class SearchRunner {
 		    String query = "factory workers lay-offs lockouts strikes";
 			String desktop = System.getProperty ("user.home") + "/Documents/MSCS/";
 	        try {
-	        SearchRunner runner = new SearchRunner(desktop+"/IR", desktop+"/Corpus", 'Q', new PrintStream(new File(desktop+"stream.txt")));
+	        SearchRunner runner = new SearchRunner("D:\\SourceTree", "D:\\SourceTree\\Corpus", 'Q', new PrintStream(new File("stream.txt")));
 	        timeTaken = System.currentTimeMillis();
-				runner.query(query, ScoringModel.OKAPI);
+//				runner.query(query, ScoringModel.OKAPI);
+	        runner.query(new File("D:\\SourceTree\\queries.txt"));
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
