@@ -1,6 +1,10 @@
 package edu.buffalo.cse.irf14;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -391,6 +395,59 @@ public class SearchRunner {
 	 */
 	public void query(File queryFile) {
 		//TODO: IMPLEMENT THIS METHOD
+		class Temp{
+			String queryId;
+			StringBuffer queryText;
+		}
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(queryFile));
+			String line = br.readLine();
+			Temp query = null;
+			List<Temp> queriesInFile = new ArrayList<Temp>();
+			while(line!=null) {
+				if(line.contains("numQueries")) {
+					continue;
+				}else if(line.startsWith("Q_")) {
+					query = new Temp();
+					String[] queryVariables = line.split("{");
+					if(queryVariables.length>1) {
+						query.queryId = queryVariables[0];
+					}
+					if(line.contains("}")) {
+						query.queryText.append(line.substring(line.indexOf('{')+1, line.indexOf('}')));
+						queriesInFile.add(query);
+					}
+					else 
+						query.queryText.append(line.substring(line.indexOf('{')+1, line.length()));
+				}else {
+					query.queryText.append(line.substring(0, line.indexOf('}')));
+					queriesInFile.add(query);
+				}
+			}
+			stream.println("numResults="+queriesInFile.size());
+			for(Temp s: queriesInFile) {
+				Query myQuery = QueryParser.parse(s.queryText.toString(), "OR");
+				List<String> resultPostings = getPostingsList(myQuery.getQueryTree());
+				if(resultPostings != null)
+				{
+					stream.print(s.queryId+"{");
+					List<DocumentWithTfIdfWeight> results = getTFIDFTopResults(resultPostings);					
+					for (int i=0;i<results.size();i++) {
+						stream.print(results.get(i).getFileId()+"#"+results.get(i).getTfIdf());
+						if(i!=results.size()-1) {
+							stream.print(", ");
+						}
+					}
+					stream.println("}");
+				}
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/**
