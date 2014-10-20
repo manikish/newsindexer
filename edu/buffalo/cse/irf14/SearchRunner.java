@@ -566,42 +566,4 @@ public class SearchRunner {
 		return null;
 	}
 	
-	public static void main(String[] args) {
-//		try {
-//			String query = "(Term:casino AND (Category:zenith AND Category:adobe) OR Place:California) laser takeovers";
-//			String query = "(Term:casino AND (Category:zenith AND Category:adobe) OR \"hello world\") laser takeovers";
-//			String query = "\"hello computer world\" \"tree parser\" ((first NOT second) AND third)";
-//			String query = "\"hello computer world\" Category:\"tree parser\" ((first NOT second) AND third)";
-//			String query = "(Love NOT War) AND Category:(movies NOT crime)";
-//			String query = "Category:War AND Author:Dutt AND Place:(Baghdad AND Mysore) detainees rebels";
-//			String query = "author:\"Patti Domm\" AND american express";
-//			String query = "author:(brian OR richard) AND place:(paris OR washington)";
-//			String query = "author:minkwoski OR disney";
-//			String query = "place:tokyo NOT bank";
-//			String query = "french economy employment government policies";
-//			String query = "author:torday AND (debt OR currency)";
-//			String query = "Adobe";
-//			String query = "author:miller OR miller";
-//			String query = "category:coffee beans";
-//			String query = "place:washington AND federal treasury";
-//			String query = "place:paris AND government";
-//			String query = "blah blah blah";
-//			String query = "mitsubishi";
-//		    String query = "trade deficit foreign exchange trade surplus balance of trade";
-		    String query = "factory workers lay-offs lockouts strikes";
-			String desktop = System.getProperty ("user.home") + "/Documents/MSCS/";
-	        try {
-	            SearchRunner runner = new SearchRunner(desktop+"/IR", desktop+"/Corpus", 'Q', new PrintStream(new File(desktop+"stream.txt")));
-	            runner.query(query, ScoringModel.OKAPI);
-//	        runner.query(new File("D:\\SourceTree\\queries.txt"));
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	        
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-	}
 }
